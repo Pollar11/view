@@ -121,12 +121,20 @@ export class ScrapeSourceAdapter implements SourceAdapter {
     const fromLd = this.fromJsonLd($, url, fallbackCategory);
     const fromOg = this.fromMeta($, url, fallbackCategory);
 
+    // Prefer a real synopsis over an SEO meta description when the page has one.
+    const bodyDesc = this.fromBody($);
+    const ldOrOg = fromLd?.description ?? fromOg?.description ?? '';
+    const description =
+      bodyDesc && (bodyDesc.length > ldOrOg.length || /reviews?, ratings?, (and )?trailers|stay updated/i.test(ldOrOg))
+        ? bodyDesc
+        : ldOrOg;
+
     const merged: Partial<RawItem> = {
       externalId: hash(url),
       sourcePageUrl: url,
       category: fromLd?.category ?? fromOg?.category ?? fallbackCategory,
       title: fromLd?.title ?? fromOg?.title,
-      description: fromLd?.description ?? fromOg?.description,
+      description,
       genres: dedupe([...(fromLd?.genres ?? []), ...(fromOg?.genres ?? [])]),
       tags: dedupe([...(fromLd?.tags ?? []), ...(fromOg?.tags ?? [])]),
       year: fromLd?.year ?? fromOg?.year ?? null,
@@ -136,6 +144,27 @@ export class ScrapeSourceAdapter implements SourceAdapter {
       startsAt: fromLd?.startsAt ?? null,
     };
     return isUsable(merged) ? merged : null;
+  }
+
+  /** Common on-page synopsis containers, tried in order; returns the first solid hit. */
+  private fromBody($: cheerio.CheerioAPI): string {
+    const selectors = [
+      '[data-qa*="synopsis" i]',
+      '[data-testid*="synopsis" i]',
+      'rt-text[slot="content"]',
+      '#synopsis',
+      '.synopsis',
+      '[class*="synopsis" i]',
+      '[itemprop="description"]',
+      '#movieSynopsis',
+      '.plot-summary',
+      '[class*="summary" i] p',
+    ];
+    for (const sel of selectors) {
+      const text = $(sel).first().text().replace(/\s+/g, ' ').trim();
+      if (text.length >= 40 && text.length <= 3000) return text;
+    }
+    return '';
   }
 
   private fromJsonLd(
