@@ -22,7 +22,7 @@ export default function CategoryScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: palette.ground }} edges={['top']}>
       <BackBar onBack={() => router.back()} title={category ? TITLES[category] : 'Browse'} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 96 }}>
-        <View style={{ padding: layout.screenPadding, paddingBottom: 0 }}>
+        <View style={{ padding: layout.gutter, paddingBottom: 0 }}>
           <Txt variant="title">{category ? TITLES[category] : 'Browse'}</Txt>
         </View>
         <CategoryView fixedCategory={category} showCategoryTabs={!category} />

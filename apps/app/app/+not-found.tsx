@@ -18,7 +18,7 @@ export default function NotFound() {
         }}
       >
         <Txt variant="title">This screen doesn’t exist.</Txt>
-        <Link href="/(tabs)">
+        <Link href="/(app)">
           <Txt variant="label" color={palette.accentHi}>
             Go home
           </Txt>

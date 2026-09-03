@@ -1,7 +1,7 @@
-import { useWindowDimensions, View } from 'react-native';
-import { FlatList } from 'react-native';
+import { FlatList, Pressable, useWindowDimensions, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import type { Item } from '@view/shared';
-import { layout, palette, space } from '@/theme/tokens';
+import { layout, palette, space, type } from '@/theme/tokens';
 import { Txt } from './Txt';
 import { ItemCard } from './ItemCard';
 
@@ -14,9 +14,9 @@ interface Props {
 export function useCardWidth(): number {
   const { width } = useWindowDimensions();
   const w = Math.min(width, layout.maxContentWidth);
-  if (w < 480) return 132;
-  if (w < 900) return 156;
-  return 184;
+  if (w < 480) return 134;
+  if (w < 900) return 158;
+  return 178;
 }
 
 export function Rail({ title, items, onSeeAll }: Props) {
@@ -24,28 +24,41 @@ export function Rail({ title, items, onSeeAll }: Props) {
   if (!items?.length) return null;
 
   return (
-    <View style={{ gap: space.md }}>
-      <View
+    <View style={{ gap: space.lg }}>
+      <Pressable
+        onPress={onSeeAll}
+        disabled={!onSeeAll}
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
-          alignItems: 'baseline',
-          paddingHorizontal: layout.screenPadding,
+          alignItems: 'center',
+          paddingHorizontal: layout.gutter,
+          maxWidth: layout.maxContentWidth,
+          alignSelf: 'center',
+          width: '100%',
         }}
       >
         <Txt variant="section">{title}</Txt>
         {onSeeAll ? (
-          <Txt variant="label" color={palette.textDim} onPress={onSeeAll}>
-            All
-          </Txt>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Txt style={{ ...type.label, color: palette.textDim }}>See all</Txt>
+            <Svg width={13} height={13} viewBox="0 0 24 24">
+              <Path d="M9 5l7 7-7 7" stroke={palette.textDim} strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+          </View>
         ) : null}
-      </View>
+      </Pressable>
+
       <FlatList
         horizontal
         data={items}
         keyExtractor={(i) => i.id}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: layout.screenPadding, gap: space.md }}
+        contentContainerStyle={{
+          paddingHorizontal: layout.gutter,
+          gap: space.md,
+          alignSelf: 'center',
+        }}
         renderItem={({ item }) => <ItemCard item={item} width={cardWidth} />}
         initialNumToRender={6}
         windowSize={5}

@@ -6,7 +6,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { layout, palette, space } from '@/theme/tokens';
 import { Txt } from '@/components/Txt';
-import { Button } from '@/components/Button';
+import { PillButton } from '@/components/PillButton';
 import { Badge, startsLabel } from '@/components/Badge';
 import { BackBar } from '@/components/BackBar';
 import { Poster } from '@/components/Poster';
@@ -27,7 +27,7 @@ export default function ItemDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const wide = width >= 820;
+  const wide = width >= 860;
 
   const { data: item, isLoading } = useItemQuery(id);
   const { data: favorites } = useFavoritesQuery();
@@ -37,7 +37,7 @@ export default function ItemDetail() {
   const [watchError, setWatchError] = useState<string | null>(null);
 
   const related = useItemsQuery(
-    item ? { category: item.category, sort: 'popular', limit: 12 } : { limit: 0 },
+    item ? { category: item.category, sort: 'popular', limit: 12 } : { limit: 1 },
     { skip: !item },
   );
 
@@ -53,10 +53,10 @@ export default function ItemDetail() {
   const meta = [
     item.year,
     item.rating ? `★ ${item.rating.toFixed(1)}` : null,
-    item.genres.join(' · ') || null,
+    item.genres.slice(0, 3).join(' · ') || null,
   ]
     .filter(Boolean)
-    .join('   ·   ');
+    .join('     ');
 
   const watch = async () => {
     setWatchError(null);
@@ -73,15 +73,17 @@ export default function ItemDetail() {
     }
   };
 
+  const backdropH = wide ? 460 : 320;
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: palette.ground }} edges={['top']}>
-      <BackBar onBack={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)'))} />
+      <BackBar onBack={() => (router.canGoBack() ? router.back() : router.replace('/(app)'))} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
-        {/* backdrop */}
-        <View style={{ height: wide ? 420 : 300 }}>
-          <Poster posterUrl={item.posterUrl} title={item.title} aspect={width / (wide ? 420 : 300)} rounded={false} />
+        <View style={{ height: backdropH }}>
+          <Poster posterUrl={item.posterUrl} title={item.title} aspect={width / backdropH} rounded={false} />
           <LinearGradient
-            colors={['transparent', 'rgba(10,10,10,0.6)', palette.ground]}
+            colors={['rgba(11,11,12,0.15)', 'rgba(11,11,12,0.5)', palette.ground]}
+            locations={[0, 0.6, 1]}
             style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
           />
         </View>
@@ -91,55 +93,45 @@ export default function ItemDetail() {
             maxWidth: layout.maxContentWidth,
             width: '100%',
             alignSelf: 'center',
-            padding: layout.screenPadding,
-            marginTop: -80,
-            gap: space.lg,
+            paddingHorizontal: layout.gutter,
+            marginTop: -96,
+            gap: space.xl,
             flexDirection: wide ? 'row' : 'column',
           }}
         >
           {wide ? (
-            <View style={{ width: 220 }}>
+            <View style={{ width: 232 }}>
               <Poster posterUrl={item.posterUrl} title={item.title} />
             </View>
           ) : null}
 
-          <View style={{ flex: 1, gap: space.md }}>
+          <View style={{ flex: 1, gap: space.lg }}>
             <View style={{ flexDirection: 'row', gap: space.sm }}>
-              <Badge label={item.category} tone="accent" />
+              <Badge label={item.category} />
               {live ? <Badge label={live} tone={live === 'LIVE' ? 'live' : 'neutral'} /> : null}
             </View>
-            <Txt variant="hero" style={{ fontSize: wide ? 40 : 30 }}>
-              {item.title}
-            </Txt>
-            {meta ? (
-              <Txt variant="meta" color={palette.textDim}>
-                {meta}
-              </Txt>
-            ) : null}
+            <Txt variant={wide ? 'hero' : 'title'}>{item.title}</Txt>
+            {meta ? <Txt variant="meta" color={palette.textDim}>{meta}</Txt> : null}
 
-            <View style={{ flexDirection: 'row', gap: space.md, marginTop: space.sm, flexWrap: 'wrap' }}>
-              <Button label={sourceLoading ? 'Opening…' : 'Watch'} onPress={watch} loading={sourceLoading} />
-              <Button
-                label={isFav ? 'In favorites' : 'Add favorite'}
-                variant="ghost"
+            <View style={{ flexDirection: 'row', gap: space.md, flexWrap: 'wrap' }}>
+              <PillButton label={sourceLoading ? 'Opening' : 'Watch'} onPress={watch} loading={sourceLoading} />
+              <PillButton
+                label={isFav ? 'Saved' : 'Add to list'}
+                variant="outline"
                 onPress={() => interact({ itemId: item.id, type: isFav ? 'unfavorite' : 'favorite' })}
               />
             </View>
-            {watchError ? (
-              <Txt variant="meta" color={palette.danger}>
-                {watchError}
-              </Txt>
-            ) : null}
+            {watchError ? <Txt variant="meta" color={palette.danger}>{watchError}</Txt> : null}
             <Txt variant="meta" color={palette.textFaint}>
               Opens the original source in your browser. The link stays hidden until you tap Watch.
             </Txt>
 
-            <Txt variant="body" color={palette.text} style={{ marginTop: space.md }}>
+            <Txt variant="body" style={{ marginTop: space.sm }}>
               {item.description || 'No description available for this title.'}
             </Txt>
 
             {item.tags.length > 0 ? (
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.sm }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
                 {item.tags.map((t) => (
                   <View
                     key={t}
@@ -148,33 +140,25 @@ export default function ItemDetail() {
                       borderColor: palette.line,
                       borderRadius: 999,
                       paddingVertical: 4,
-                      paddingHorizontal: 10,
+                      paddingHorizontal: 11,
                     }}
                   >
-                    <Txt variant="meta" color={palette.textDim}>
-                      {t}
-                    </Txt>
+                    <Txt variant="meta" color={palette.textDim}>{t}</Txt>
                   </View>
                 ))}
               </View>
             ) : null}
 
-            <View style={{ marginTop: space.lg, gap: space.sm }}>
+            <View style={{ marginTop: space.md, gap: space.sm }}>
               <Txt variant="section">Your rating</Txt>
-              <Stars
-                value={myRating}
-                onRate={(v) => interact({ itemId: item.id, type: 'rating', value: v })}
-              />
+              <Stars value={myRating} onRate={(v) => interact({ itemId: item.id, type: 'rating', value: v })} />
             </View>
           </View>
         </View>
 
         {related.data && related.data.items.length > 1 ? (
-          <View style={{ marginTop: space.xxl }}>
-            <Rail
-              title="More like this"
-              items={related.data.items.filter((i) => i.id !== item.id)}
-            />
+          <View style={{ marginTop: space.section }}>
+            <Rail title="More like this" items={related.data.items.filter((i) => i.id !== item.id)} />
           </View>
         ) : null}
       </ScrollView>

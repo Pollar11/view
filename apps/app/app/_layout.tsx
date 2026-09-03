@@ -22,7 +22,7 @@ function Gate() {
     if (!hydrated || !ready) return;
     const inAuthGroup = segments[0] === '(auth)';
     if (!user && !inAuthGroup) router.replace('/(auth)/login');
-    else if (user && inAuthGroup) router.replace('/(tabs)');
+    else if (user && inAuthGroup) router.replace('/(app)');
   }, [hydrated, ready, user, segments, router]);
 
   if (!hydrated || !ready) return <Splash />;
@@ -36,7 +36,7 @@ function Gate() {
       }}
     >
       <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="(app)" />
       <Stack.Screen name="item/[id]" options={{ animation: 'slide_from_bottom', presentation: 'card' }} />
       <Stack.Screen name="category/[slug]" />
     </Stack>

@@ -46,10 +46,21 @@ export class HomeService {
 
     const now = new Date();
     const [hero, upcoming, trending, ...perCategory] = await Promise.all([
-      this.prisma.item.findMany({
-        orderBy: [{ popularity: 'desc' }, { rating: 'desc' }],
-        take: 6,
-      }),
+      // Hero needs artwork to land — prefer items that have a poster.
+      this.prisma.item
+        .findMany({
+          where: { posterUrl: { not: null } },
+          orderBy: [{ popularity: 'desc' }, { rating: 'desc' }],
+          take: 6,
+        })
+        .then(async (rows) =>
+          rows.length >= 3
+            ? rows
+            : this.prisma.item.findMany({
+                orderBy: [{ popularity: 'desc' }, { rating: 'desc' }],
+                take: 6,
+              }),
+        ),
       this.prisma.item.findMany({
         where: { category: 'sports', startsAt: { gte: now } },
         orderBy: { startsAt: 'asc' },

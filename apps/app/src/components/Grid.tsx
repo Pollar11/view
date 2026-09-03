@@ -5,7 +5,7 @@ import { ItemCard } from './ItemCard';
 
 export function Grid({ items }: { items: Item[] }) {
   const { width } = useWindowDimensions();
-  const inner = Math.min(width, layout.maxContentWidth) - layout.screenPadding * 2;
+  const inner = Math.min(width, layout.maxContentWidth) - layout.gutter * 2;
   const cols = width < 480 ? 2 : width < 760 ? 3 : width < 1080 ? 4 : 5;
   const gap = space.md;
   const cardWidth = (inner - gap * (cols - 1)) / cols;
@@ -16,7 +16,7 @@ export function Grid({ items }: { items: Item[] }) {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap,
-        paddingHorizontal: layout.screenPadding,
+        paddingHorizontal: layout.gutter,
       }}
     >
       {items.map((item) => (

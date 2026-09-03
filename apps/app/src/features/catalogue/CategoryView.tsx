@@ -51,7 +51,7 @@ export function CategoryView({
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: space.sm, paddingHorizontal: layout.screenPadding }}
+          contentContainerStyle={{ gap: space.sm, paddingHorizontal: layout.gutter }}
         >
           <Chip label="All" active={!category} onPress={() => reset(() => { setCategory(undefined); setGenre(undefined); })} />
           {CATEGORIES.map((c) => (
@@ -68,7 +68,7 @@ export function CategoryView({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: space.sm, paddingHorizontal: layout.screenPadding }}
+        contentContainerStyle={{ gap: space.sm, paddingHorizontal: layout.gutter }}
       >
         {SORTS.map((s) => (
           <Chip key={s.key} label={s.label} active={sort === s.key} onPress={() => reset(() => setSort(s.key))} />
@@ -79,7 +79,7 @@ export function CategoryView({
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: space.sm, paddingHorizontal: layout.screenPadding }}
+          contentContainerStyle={{ gap: space.sm, paddingHorizontal: layout.gutter }}
         >
           <Chip label="Any genre" active={!genre} onPress={() => reset(() => setGenre(undefined))} />
           {genres.map((g) => (
@@ -97,12 +97,12 @@ export function CategoryView({
         <ActivityIndicator color={palette.textDim} style={{ marginTop: space.xxl }} />
       ) : data && data.items.length > 0 ? (
         <>
-          <Txt variant="meta" color={palette.textFaint} style={{ paddingHorizontal: layout.screenPadding }}>
+          <Txt variant="meta" color={palette.textFaint} style={{ paddingHorizontal: layout.gutter }}>
             {data.total} title{data.total === 1 ? '' : 's'}
           </Txt>
           <Grid items={data.items} />
           {data.hasNext ? (
-            <View style={{ paddingHorizontal: layout.screenPadding, marginTop: space.lg }}>
+            <View style={{ paddingHorizontal: layout.gutter, marginTop: space.lg }}>
               <Button
                 label={isFetching ? 'Loading…' : 'Load more'}
                 variant="ghost"

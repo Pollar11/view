@@ -21,10 +21,11 @@ export function ItemCard({ item, width, preview = true }: Props) {
   const anim = useRef(new Animated.Value(0)).current;
   const lift = useRef(new Animated.Value(0)).current;
 
+  const nativeDriver = Platform.OS !== 'web';
   const toggle = (on: boolean) => {
     setHovered(on);
-    Animated.timing(anim, { toValue: on ? 1 : 0, duration: 180, useNativeDriver: true }).start();
-    Animated.spring(lift, { toValue: on ? 1 : 0, useNativeDriver: true, speed: 30, bounciness: 4 }).start();
+    Animated.timing(anim, { toValue: on ? 1 : 0, duration: 180, useNativeDriver: nativeDriver }).start();
+    Animated.spring(lift, { toValue: on ? 1 : 0, useNativeDriver: nativeDriver, speed: 30, bounciness: 4 }).start();
   };
 
   const live = startsLabel(item.startsAt);

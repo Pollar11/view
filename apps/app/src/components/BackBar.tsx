@@ -10,7 +10,7 @@ export function BackBar({ onBack, title }: { onBack: () => void; title?: string 
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.md,
-        paddingHorizontal: layout.screenPadding,
+        paddingHorizontal: layout.gutter,
         paddingVertical: space.md,
         borderBottomWidth: 1,
         borderBottomColor: palette.line,

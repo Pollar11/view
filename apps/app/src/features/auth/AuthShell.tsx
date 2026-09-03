@@ -24,7 +24,7 @@ export function AuthShell({
         {twoUp ? (
           <LinearGradient
             colors={[palette.surface, palette.ground]}
-            style={{ flex: 1.1, padding: space.xxxl, justifyContent: 'space-between' }}
+            style={{ flex: 1.1, padding: space.section, justifyContent: 'space-between' }}
           >
             <Logo size={30} />
             <View style={{ gap: space.lg }}>

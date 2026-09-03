@@ -163,8 +163,8 @@ export class IngestService implements OnApplicationBootstrap {
       title: title.slice(0, 300),
       description: this.sanitizer.description(r.description).slice(0, 4000),
       category: r.category as Category,
-      genres: this.sanitizer.list(r.genres).slice(0, 8),
-      tags: this.sanitizer.list(r.tags).slice(0, 20),
+      genres: cleanGenres(this.sanitizer.list(r.genres)).slice(0, 6),
+      tags: cleanGenres(this.sanitizer.list(r.tags)).slice(0, 20),
       year: r.year ?? null,
       rating: r.rating ?? null,
       posterUrl: safeHttpUrl(r.posterUrl),
@@ -222,6 +222,28 @@ function slugify(s: string): string {
     .replace(/-+/g, '-')
     .slice(0, 80);
 }
+/**
+ * Tidies genre/tag lists from verbose sources (e.g. Library-of-Congress style
+ * "Atomic-nuclear: Weapons") into short, title-cased labels and drops junk.
+ */
+function cleanGenres(list: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of list) {
+    let v = raw.split(/[:/–—|]/).pop()?.trim() ?? '';
+    v = v.replace(/\s+/g, ' ').trim();
+    if (v.length < 2 || v.length > 24) continue;
+    if (/^(need keyword|keyword|n\/?a|none|unknown|misc|other|uncategor)/i.test(v)) continue;
+    if (/\d{4}/.test(v)) continue;
+    const label = v.replace(/\b\w/g, (c) => c.toUpperCase());
+    const key = label.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(label);
+  }
+  return out;
+}
+
 function genresKey(genres: string[]): string {
   if (!genres.length) return '';
   return `|${genres.map((g) => g.toLowerCase().replace(/\s+/g, '-')).join('|')}|`;
