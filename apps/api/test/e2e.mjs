@@ -96,7 +96,7 @@ try {
   ok('no email address', !/@[a-z0-9.-]+\.[a-z]{2,}/i.test(blob));
   ok('no tracker string', !/tracking pixel|analytics/i.test(blob));
   ok('no stream/m3u8 url', !/m3u8|\/embed\/|master\./i.test(blob));
-  ok('poster URLs are opaque /media paths', allItems.items.every((i) => i.posterUrl === null || i.posterUrl.startsWith('/media/')));
+  ok('poster URLs are opaque /media paths', allItems.items.every((i) => i.posterUrl === null || i.posterUrl.startsWith('/api/media/')));
 
   // scraped content still yielded real metadata
   const withGenre = allItems.items.filter((i) => i.genres.length > 0);

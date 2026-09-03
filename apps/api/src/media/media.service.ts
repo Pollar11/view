@@ -27,7 +27,8 @@ export class MediaService {
     }
     if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
     const payload = Buffer.from(parsed.toString()).toString('base64url');
-    return `/media/${payload}.${this.hmac(payload)}`;
+    // Same-origin path including the global API prefix.
+    return `/api/media/${payload}.${this.hmac(payload)}`;
   }
 
   resolve(payload: string, sig: string): string {
