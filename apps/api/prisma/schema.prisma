@@ -1,0 +1,106 @@
+// View aggregation database.
+//
+// Default datasource is SQLite for zero-config local dev. For production set
+// DATABASE_URL to a PostgreSQL URL and change `provider` to "postgresql"
+// (the schema below is compatible with both — no arrays, no native enums).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  passwordHash       String
+  displayName        String
+  matchNotifications Boolean  @default(true)
+  // Cached preference profile (JSON) rebuilt from interactions by the recommender.
+  preferenceJson     String   @default("{}")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  refreshTokens RefreshToken[]
+  interactions  Interaction[]
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Item {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String   @default("")
+  category    String // "movies" | "sports" | "documentaries"
+  year        Int?
+  rating      Float?
+  popularity  Float    @default(0)
+  posterUrl   String? // opaque, proxied through /media
+  releasedAt  DateTime?
+  startsAt    DateTime? // sports kickoff — drives notifications
+
+  // Normalised for filtering: "|action|drama|"
+  genresKey String @default("")
+  genresJson String @default("[]")
+  tagsJson   String @default("[]")
+
+  // ---- never serialised to clients ----
+  sourceId      String // which configured source produced this
+  sourceKind    String // "api" | "scrape"
+  externalId    String // upstream id, opaque
+  // Original human-facing page on the source site. Returned ONLY by the
+  // authenticated GET /items/:id/source endpoint, never in item payloads.
+  sourcePageUrl String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  interactions Interaction[]
+
+  @@unique([sourceId, externalId])
+  @@index([category])
+  @@index([category, popularity])
+  @@index([startsAt])
+}
+
+model Interaction {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId    String
+  type      String // "view" | "favorite" | "unfavorite" | "rating"
+  value     Float? // rating 1..5
+  createdAt DateTime @default(now())
+
+  @@index([userId, type])
+  @@index([userId, itemId])
+  @@index([itemId, type])
+}
+
+model SourceRun {
+  id         String   @id @default(cuid())
+  sourceId   String
+  kind       String
+  ok         Boolean
+  itemCount  Int      @default(0)
+  message    String   @default("")
+  startedAt  DateTime @default(now())
+  finishedAt DateTime?
+
+  @@index([sourceId, startedAt])
+}

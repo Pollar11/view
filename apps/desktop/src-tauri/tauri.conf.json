@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "View",
+  "version": "1.0.0",
+  "identifier": "app.view.desktop",
+  "build": {
+    "beforeBuildCommand": "npm run build:web",
+    "beforeDevCommand": "npm run build:web",
+    "frontendDist": "../../app/dist",
+    "devUrl": null
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "View",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 900,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "backgroundColor": "#0A0A0A",
+        "titleBarStyle": "Overlay"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' http://localhost:4000 https:; connect-src 'self' http://localhost:4000 https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'",
+      "capabilities": ["default"]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.png"
+    ],
+    "category": "Entertainment",
+    "shortDescription": "Ad-free movies, sport and documentaries — aggregated.",
+    "longDescription": "View aggregates movies, live sport and documentaries into one fast, ad-free interface. The desktop app is the same client as web, iOS and Android."
+  }
+}

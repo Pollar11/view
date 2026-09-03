@@ -1,0 +1,33 @@
+node_modules/
+.npm-cache/
+dist/
+build/
+.next/
+out/
+coverage/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# prisma local db
+*.db
+*.db-journal
+apps/api/prisma/*.db
+apps/api/prisma/dev.db
+apps/api/prisma/e2e.db
+
+# expo / rn
+.expo/
+apps/app/dist/
+apps/app/web-build/
+*.tsbuildinfo
+
+# tauri
+apps/desktop/target/
+apps/desktop/gen/
+
+# misc
+.DS_Store
+*.log

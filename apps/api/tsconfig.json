@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES2021",
+    "lib": ["ES2021"],
+    "declaration": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@view/shared": ["../../packages/shared/src/index.ts"],
+      "src/*": ["src/*"]
+    }
+  },
+  "include": ["src", "prisma", "test"],
+  "exclude": ["node_modules", "dist"]
+}

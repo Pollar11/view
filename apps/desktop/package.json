@@ -1,0 +1,15 @@
+{
+  "name": "@view/desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "View desktop shell (Tauri 2) — wraps the Expo web export.",
+  "scripts": {
+    "build:web": "npm --workspace @view/app run export:web",
+    "dev": "npm run build:web && tauri dev",
+    "build": "npm run build:web && tauri build",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0"
+  }
+}

@@ -1,0 +1,216 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Helvetica Neue", "Helvetica", "Inter", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+
+  --bg: #ffffff;
+  --fg: #171a20;
+  --muted: #5c5e62;
+  --hairline: #e2e2e4;
+  --panel: #f4f4f4;
+  --panel-2: #ececec;
+  --accent: #e82127; /* Tesla red — used only for LIVE cues */
+
+  --nav-h: 3.5rem;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a0a0b;
+    --fg: #f4f4f4;
+    --muted: #9a9ca1;
+    --hairline: #232427;
+    --panel: #141517;
+    --panel-2: #1c1d20;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a0a0b;
+  --fg: #f4f4f4;
+  --muted: #9a9ca1;
+  --hairline: #232427;
+  --panel: #141517;
+  --panel-2: #1c1d20;
+}
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --fg: #171a20;
+  --muted: #5c5e62;
+  --hairline: #e2e2e4;
+  --panel: #f4f4f4;
+  --panel-2: #ececec;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--nav-h);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0.012em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.08;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+/* ---- Tesla-style micro label ---- */
+.eyebrow {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---- Buttons ---- */
+.tsl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 9.5rem;
+  padding: 0.7rem 2rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background-color 0.25s var(--ease),
+    color 0.25s var(--ease),
+    opacity 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+.tsl-btn:active {
+  transform: scale(0.98);
+}
+.tsl-btn-solid {
+  background: var(--fg);
+  color: var(--bg);
+}
+.tsl-btn-solid:hover {
+  opacity: 0.82;
+}
+.tsl-btn-ghost {
+  background: color-mix(in srgb, var(--bg) 65%, transparent);
+  color: var(--fg);
+  border: 1px solid color-mix(in srgb, var(--fg) 22%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.tsl-btn-ghost:hover {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+
+.hairline {
+  border-color: var(--hairline);
+}
+
+/* ---- Horizontal rails ---- */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Marketing scroll-snap on the home showcase ---- */
+.snap-y-section {
+  scroll-snap-type: y proximity;
+}
+.snap-section {
+  scroll-snap-align: start;
+}
+
+/* ---- Rich text ---- */
+.rich :is(p, ul, ol, blockquote) {
+  margin: 0 0 1rem;
+}
+.rich a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.rich :is(h2, h3, h4) {
+  font-weight: 500;
+  margin: 1.6rem 0 0.5rem;
+}
+
+/* ---- Motion ---- */
+@keyframes fadeup {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fadeup {
+  animation: fadeup 0.7s var(--ease) both;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--panel);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--fg) 6%, transparent),
+    transparent
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
