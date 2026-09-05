@@ -6,17 +6,19 @@
   "workspaces": [
     "packages/*",
     "apps/api",
-    "apps/app"
+    "apps/app",
+    "apps/farm-market"
   ],
   "scripts": {
     "postinstall": "npm --workspace @view/shared run build",
     "api": "npm --workspace @view/api run start:dev",
     "app": "npm --workspace @view/app run start",
+    "farm-market": "npm --workspace @view/farm-market run dev",
     "build:shared": "npm --workspace @view/shared run build",
     "build:api": "npm --workspace @view/api run build",
     "seed": "npm --workspace @view/api run seed",
     "ingest": "npm --workspace @view/api run ingest",
-    "typecheck": "npm --workspace @view/shared run typecheck && npm --workspace @view/api run typecheck && npm --workspace @view/app run typecheck"
+    "typecheck": "npm --workspace @view/shared run typecheck && npm --workspace @view/api run typecheck && npm --workspace @view/app run typecheck && npm --workspace @view/farm-market run typecheck"
   },
   "engines": {
     "node": ">=18.18.0"
