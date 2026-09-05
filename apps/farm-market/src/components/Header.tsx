@@ -1,11 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/store/cart-context";
 import { ThemeToggle } from "./ThemeToggle";
 
+const NAV_LINKS = [
+  { href: "/shop", label: "Shop all" },
+  { href: "/shop?category=sheep", label: "Sheep" },
+  { href: "/shop?category=goat", label: "Goat" },
+  { href: "/shop?category=chicken", label: "Chicken & Eggs" },
+  { href: "/shop?category=duck", label: "Duck" },
+  { href: "/shop?category=rabbit", label: "Rabbit" },
+];
+
 export function Header() {
   const { lines, isHydrated } = useCart();
+  const [menuOpen, setMenuOpen] = useState(false);
   const count = lines.reduce((sum, l) => sum + l.qty, 0);
 
   return (
@@ -17,24 +28,11 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-7 text-sm font-medium text-ink-light/70 dark:text-ink-dark/70 md:flex">
-          <Link href="/shop" className="transition hover:text-ink-light dark:hover:text-ink-dark">
-            Shop all
-          </Link>
-          <Link href="/shop?category=sheep" className="transition hover:text-ink-light dark:hover:text-ink-dark">
-            Sheep
-          </Link>
-          <Link href="/shop?category=goat" className="transition hover:text-ink-light dark:hover:text-ink-dark">
-            Goat
-          </Link>
-          <Link href="/shop?category=chicken" className="transition hover:text-ink-light dark:hover:text-ink-dark">
-            Chicken &amp; Eggs
-          </Link>
-          <Link href="/shop?category=duck" className="transition hover:text-ink-light dark:hover:text-ink-dark">
-            Duck
-          </Link>
-          <Link href="/shop?category=rabbit" className="transition hover:text-ink-light dark:hover:text-ink-dark">
-            Rabbit
-          </Link>
+          {NAV_LINKS.map((link) => (
+            <Link key={link.href} href={link.href} className="transition hover:text-ink-light dark:hover:text-ink-dark">
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -51,8 +49,43 @@ export function Header() {
               </span>
             )}
           </Link>
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-line-light transition hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/10 md:hidden"
+          >
+            {menuOpen ? <CloseIcon /> : <MenuIcon />}
+          </button>
         </div>
       </div>
+
+      {menuOpen && (
+        <nav className="border-t border-line-light px-5 py-3 text-sm font-medium dark:border-line-dark md:hidden">
+          <ul className="flex flex-col gap-1">
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="block rounded-lg px-2 py-2.5 text-ink-light/80 transition hover:bg-black/5 dark:text-ink-dark/80 dark:hover:bg-white/10"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link
+                href="/admin"
+                onClick={() => setMenuOpen(false)}
+                className="block rounded-lg px-2 py-2.5 text-ink-light/50 transition hover:bg-black/5 dark:text-ink-dark/50 dark:hover:bg-white/10"
+              >
+                Farm dashboard
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }
@@ -63,6 +96,22 @@ function CartIcon() {
       <circle cx="9" cy="21" r="1" />
       <circle cx="20" cy="21" r="1" />
       <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function MenuIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
     </svg>
   );
 }
