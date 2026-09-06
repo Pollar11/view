@@ -1,4 +1,11 @@
-export type Category = "sheep" | "goat" | "chicken" | "eggs" | "duck" | "rabbit";
+export type Category =
+  | "sheep"
+  | "goat"
+  | "beef"
+  | "chicken"
+  | "eggs"
+  | "duck"
+  | "rabbit";
 
 export type UnitType = "per_lb" | "per_unit";
 
@@ -20,8 +27,10 @@ export interface Product {
   unitNoun: string; // "lb", "chicken", "dozen"
   /** For per_lb products sold whole (duck, rabbit): the average dressed weight of one animal. */
   avgWeightLb?: number;
-  /** For per_lb products sold by portion (sheep, goat). */
+  /** For per_lb products sold by portion (sheep, goat, beef). */
   portionOptions?: PortionOption[];
+  /** "whole" = live-weight animal cut to order; "butchered" = ready retail cuts. */
+  cutType: "whole" | "butchered";
   baseStock: number;
   image: string;
   imageAlt: string;
@@ -57,7 +66,7 @@ export interface OrderItem {
   lineTotal: number;
 }
 
-export type PaymentMethod = "cod" | "card_demo";
+export type PaymentMethod = "cod" | "card_demo" | "apple_pay_demo" | "paypal_demo";
 
 export interface Order {
   id: string;
@@ -99,6 +108,18 @@ export interface Coupon {
   customerId: string | null;
   expiresAt: string;
   usedAt: string | null;
+  createdAt: string;
+}
+
+export interface SubscriptionLead {
+  id: string;
+  category: Category;
+  planLabel: string;
+  zip: string;
+  monthlyPrice: number;
+  deliveryMiles: number;
+  phone: string;
+  name: string;
   createdAt: string;
 }
 

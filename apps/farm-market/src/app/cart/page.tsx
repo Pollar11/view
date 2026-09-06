@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/store/cart-context";
-import { getProduct, CATALOG, CATEGORY_LABELS } from "@/lib/products";
+import { getProduct, CATALOG, CATEGORY_LABELS, CATEGORY_PAIRINGS } from "@/lib/products";
+import type { Category } from "@/lib/types";
 import { money } from "@/lib/format";
 import { FreeDeliveryBar } from "@/components/FreeDeliveryBar";
 
@@ -21,10 +23,32 @@ export default function CartPage() {
     clearPromo,
   } = useCart();
 
+  const [textPhone, setTextPhone] = useState("");
+  const [textStatus, setTextStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
   const cartCategories = new Set(
-    lines.map((l) => getProduct(l.slug)?.category).filter(Boolean),
+    lines
+      .map((l) => getProduct(l.slug)?.category)
+      .filter((c): c is Category => c !== undefined),
   );
-  const suggestions = CATALOG.filter((p) => !cartCategories.has(p.category)).slice(0, 3);
+  const pairedCategories = Array.from(
+    new Set(Array.from(cartCategories).flatMap((c) => CATEGORY_PAIRINGS[c])),
+  ).filter((c) => !cartCategories.has(c));
+  const suggestedCategories = pairedCategories.slice(0, 3);
+
+  async function sendCartText() {
+    setTextStatus("sending");
+    try {
+      const res = await fetch("/api/cart/text", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: textPhone, items: lines }),
+      });
+      setTextStatus(res.ok ? "sent" : "error");
+    } catch {
+      setTextStatus("error");
+    }
+  }
 
   if (!isHydrated) {
     return <div className="mx-auto max-w-4xl px-5 py-16 text-center text-ink-light/50">Loading cart…</div>;
@@ -66,7 +90,7 @@ export default function CartPage() {
                 <img
                   src={product.image}
                   alt={product.imageAlt}
-                  className="h-20 w-20 flex-shrink-0 rounded-lg object-cover"
+                  className="product-photo h-20 w-20 flex-shrink-0 rounded-lg object-cover"
                 />
                 <div className="flex flex-1 flex-col">
                   <div className="flex items-start justify-between gap-2">
@@ -108,15 +132,15 @@ export default function CartPage() {
             );
           })}
 
-          {suggestions.length > 0 && (
+          {suggestedCategories.length > 0 && (
             <div className="pt-4">
               <p className="mb-3 text-sm font-semibold">
                 Add a category, save more — mix 2+ and get 5% off automatically:
               </p>
               <div className="flex flex-wrap gap-2">
-                {suggestions.map((p) => (
-                  <Link key={p.slug} href={`/product/${p.slug}`} className="pill border border-line-light hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/10">
-                    + {CATEGORY_LABELS[p.category]}
+                {suggestedCategories.map((c) => (
+                  <Link key={c} href={`/shop?category=${c}`} className="pill border border-line-light hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/10">
+                    + {CATEGORY_LABELS[c]}
                   </Link>
                 ))}
               </div>
@@ -181,6 +205,39 @@ export default function CartPage() {
           <Link href="/checkout" className="btn-primary block w-full text-center">
             Checkout
           </Link>
+
+          <div className="card p-5">
+            <p className="label mb-1">Not ready yet?</p>
+            {textStatus === "sent" ? (
+              <p className="text-sm text-accent dark:text-accent-light">
+                Text sent — check your phone.
+              </p>
+            ) : (
+              <>
+                <p className="mb-2 text-xs text-ink-light/60 dark:text-ink-dark/60">
+                  Text yourself a reminder of what&apos;s in your cart right now (one message, sent only when you tap this).
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    className="input"
+                    placeholder="(555) 123-4567"
+                    value={textPhone}
+                    onChange={(e) => setTextPhone(e.target.value)}
+                  />
+                  <button
+                    onClick={sendCartText}
+                    disabled={textStatus === "sending" || !textPhone}
+                    className="btn-secondary shrink-0 px-4"
+                  >
+                    {textStatus === "sending" ? "Sending…" : "Text me"}
+                  </button>
+                </div>
+                {textStatus === "error" && (
+                  <p className="field-error">Couldn&apos;t send — check the number and try again.</p>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -2,6 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOrder } from "@/lib/db";
 import { money } from "@/lib/format";
+import type { PaymentMethod } from "@/lib/types";
+
+const PAYMENT_LABELS: Record<PaymentMethod, string> = {
+  cod: "Pay on delivery",
+  card_demo: "Demo card (no real charge)",
+  apple_pay_demo: "Apple Pay (demo — no real charge)",
+  paypal_demo: "PayPal (demo — no real charge)",
+};
 
 export default function OrderConfirmationPage({ params }: { params: { id: string } }) {
   const order = getOrder(params.id);
@@ -48,7 +56,7 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
           <div className="flex justify-between pt-1 text-base font-bold"><span>Total</span><span>{money(order.total)}</span></div>
         </div>
         <p className="border-t border-line-light pt-2.5 text-xs text-ink-light/50 dark:border-line-dark dark:text-ink-dark/50">
-          Payment: {order.paymentMethod === "cod" ? "Pay on delivery" : "Demo card (no real charge)"}
+          Payment: {PAYMENT_LABELS[order.paymentMethod]}
         </p>
       </div>
 

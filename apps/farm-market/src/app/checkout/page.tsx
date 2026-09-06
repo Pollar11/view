@@ -24,7 +24,9 @@ export default function CheckoutPage() {
   const [zip, setZip] = useState("");
   const [phone, setPhone] = useState("");
   const [smsOptIn, setSmsOptIn] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "card_demo">("cod");
+  const [paymentMethod, setPaymentMethod] = useState<
+    "cod" | "card_demo" | "apple_pay_demo" | "paypal_demo"
+  >("cod");
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
@@ -174,7 +176,23 @@ export default function CheckoutPage() {
                 <input type="radio" checked={paymentMethod === "card_demo"} onChange={() => setPaymentMethod("card_demo")} />
                 Pay now — demo card (no real charge)
               </label>
+              <label className="flex items-center gap-2.5 rounded-lg border border-line-light p-3 text-sm dark:border-line-dark">
+                <input type="radio" checked={paymentMethod === "apple_pay_demo"} onChange={() => setPaymentMethod("apple_pay_demo")} />
+                 Apple Pay (demo — no real charge)
+              </label>
+              <label className="flex items-center gap-2.5 rounded-lg border border-line-light p-3 text-sm dark:border-line-dark">
+                <input type="radio" checked={paymentMethod === "paypal_demo"} onChange={() => setPaymentMethod("paypal_demo")} />
+                PayPal (demo — no real charge)
+              </label>
             </div>
+
+            {(paymentMethod === "apple_pay_demo" || paymentMethod === "paypal_demo") && (
+              <p className="text-xs text-ink-light/50 dark:text-ink-dark/50">
+                Demo mode: {paymentMethod === "apple_pay_demo" ? "Apple Pay" : "PayPal"} isn&apos;t
+                actually wired to a processor in this build — placing the order confirms it without
+                a real charge.
+              </p>
+            )}
 
             {paymentMethod === "card_demo" && (
               <div className="space-y-3 pt-2">

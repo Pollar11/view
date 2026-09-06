@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { CATALOG } from "./products";
-import type { Coupon, Customer, Order, SmsLogEntry } from "./types";
+import type { Coupon, Customer, Order, SmsLogEntry, SubscriptionLead } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "store.json");
@@ -12,6 +12,7 @@ interface StoreShape {
   orders: Order[];
   coupons: Coupon[];
   smsLog: SmsLogEntry[];
+  subscriptionLeads: SubscriptionLead[];
   stock: Record<string, number>;
 }
 
@@ -21,6 +22,7 @@ function emptyStore(): StoreShape {
     orders: [],
     coupons: [],
     smsLog: [],
+    subscriptionLeads: [],
     stock: Object.fromEntries(CATALOG.map((p) => [p.slug, p.baseStock])),
   };
 }
@@ -35,6 +37,7 @@ function load(): StoreShape {
       orders: parsed.orders ?? base.orders,
       coupons: parsed.coupons ?? base.coupons,
       smsLog: parsed.smsLog ?? base.smsLog,
+      subscriptionLeads: parsed.subscriptionLeads ?? base.subscriptionLeads,
       stock: { ...base.stock, ...(parsed.stock ?? {}) },
     };
   } catch {
@@ -213,6 +216,26 @@ export async function markCouponUsed(code: string): Promise<void> {
     coupon.usedAt = new Date().toISOString();
     await persist();
   }
+}
+
+export async function createSubscriptionLead(
+  input: Omit<SubscriptionLead, "id" | "createdAt">,
+): Promise<SubscriptionLead> {
+  const store = getStore();
+  const lead: SubscriptionLead = {
+    ...input,
+    id: newId("sub"),
+    createdAt: new Date().toISOString(),
+  };
+  store.subscriptionLeads.push(lead);
+  await persist();
+  return lead;
+}
+
+export function listSubscriptionLeads(): SubscriptionLead[] {
+  return [...getStore().subscriptionLeads].sort(
+    (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
+  );
 }
 
 export async function logSms(entry: Omit<SmsLogEntry, "id" | "createdAt">) {

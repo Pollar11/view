@@ -10,16 +10,19 @@ export function ProductCard({ product, stock }: { product: Product; stock: numbe
       href={`/product/${product.slug}`}
       className="card group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-black/5 dark:bg-white/5">
+      <div className="product-photo-frame relative aspect-[4/3] overflow-hidden bg-black/5 dark:bg-white/5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={product.image}
           alt={product.imageAlt}
           loading="lazy"
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          className="product-photo h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />
         <span className="absolute left-3 top-3 pill bg-canvas-light/90 text-ink-light dark:bg-canvas-dark/90 dark:text-ink-dark">
           {CATEGORY_LABELS[product.category]}
+        </span>
+        <span className="absolute right-3 top-3 pill bg-black/60 text-white backdrop-blur-sm">
+          {product.cutType === "whole" ? "Whole animal" : "Butchered"}
         </span>
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">

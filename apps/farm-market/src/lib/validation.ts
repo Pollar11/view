@@ -40,7 +40,7 @@ export const checkoutSchema = z.object({
   address: addressSchema,
   phone: phoneSchema,
   smsOptIn: z.boolean(),
-  paymentMethod: z.enum(["cod", "card_demo"]),
+  paymentMethod: z.enum(["cod", "card_demo", "apple_pay_demo", "paypal_demo"]),
   discountCode: z.string().trim().max(40).optional().or(z.literal("")),
   card: z
     .object({

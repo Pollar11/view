@@ -79,6 +79,27 @@ export function orderConfirmationSms(opts: {
   );
 }
 
+export function cartReminderSms(opts: { itemCount: number; total: number }) {
+  return (
+    `Your Meadow & Market cart (${opts.itemCount} item${opts.itemCount === 1 ? "" : "s"}, ` +
+    `$${opts.total.toFixed(2)}) is saved on this device — come back anytime to finish checking out. ` +
+    `Reply STOP to opt out of texts.`
+  );
+}
+
+export function subscriptionLeadSms(opts: {
+  name: string;
+  planLabel: string;
+  monthlyTotal: number;
+}) {
+  const firstName = opts.name.split(" ")[0] || "there";
+  return (
+    `Thanks ${firstName}! We've got your Meadow & Market ${opts.planLabel} subscription request ` +
+    `(~$${opts.monthlyTotal.toFixed(2)}/mo). We'll call to confirm your first delivery date. ` +
+    `Reply STOP to opt out.`
+  );
+}
+
 export function winBackSms(opts: {
   name: string;
   code: string;

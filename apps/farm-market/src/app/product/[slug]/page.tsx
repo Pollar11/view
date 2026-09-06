@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getProduct, CATALOG, CATEGORY_LABELS } from "@/lib/products";
+import { getProduct, CATALOG, CATEGORY_LABELS, CATEGORY_PAIRINGS } from "@/lib/products";
 import { getStock } from "@/lib/db";
 import { AddToCartPanel } from "@/components/AddToCartPanel";
 import { StockBadge } from "@/components/StockBadge";
@@ -15,7 +15,12 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
   if (!product) notFound();
   const stock = getStock(product.slug);
 
-  const others = CATALOG.filter((p) => p.slug !== product.slug).slice(0, 3);
+  const pairedCategories = CATEGORY_PAIRINGS[product.category];
+  const others = CATALOG.filter(
+    (p) => p.slug !== product.slug && pairedCategories.includes(p.category),
+  )
+    .sort((a, b) => pairedCategories.indexOf(a.category) - pairedCategories.indexOf(b.category))
+    .slice(0, 3);
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-10">
@@ -28,12 +33,12 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        <div className="card overflow-hidden">
+        <div className="product-photo-frame card overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={product.image}
             alt={product.imageAlt}
-            className="aspect-[4/3] w-full object-cover"
+            className="product-photo aspect-[4/3] w-full object-cover"
           />
         </div>
 
@@ -71,8 +76,9 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
           ))}
         </div>
         <p className="mt-4 text-xs text-ink-light/50 dark:text-ink-dark/50">
-          Mix 2 or more animal categories in one order and save 5% automatically —
-          4 or more saves 10%, applied in your cart.
+          Suggestions above are things that genuinely pair with {CATEGORY_LABELS[product.category].toLowerCase()}
+          {" "}— not random cross-sells. Mix 2 or more animal categories in one order and save 5%
+          automatically, 4 or more saves 10%, applied in your cart.
         </p>
       </section>
     </div>

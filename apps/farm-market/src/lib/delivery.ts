@@ -15,7 +15,7 @@ export interface DeliveryEstimate {
 }
 
 export function estimateDelivery(zip: string): DeliveryEstimate {
-  const originZip = process.env.FARM_ORIGIN_ZIP ?? "50501";
+  const originZip = process.env.FARM_ORIGIN_ZIP ?? "94606";
   const originNum = parseInt(originZip.slice(0, 5), 10);
   const destNum = parseInt(zip.slice(0, 5), 10);
 

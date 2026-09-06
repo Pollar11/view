@@ -1,55 +1,82 @@
 import Link from "next/link";
-import { CATALOG } from "@/lib/products";
+import { CATALOG, CATEGORY_LABELS } from "@/lib/products";
 import { getAllStock } from "@/lib/db";
 import { ProductCard } from "@/components/ProductCard";
 import { SocialProofTicker } from "@/components/SocialProofTicker";
+import { LocationCard } from "@/components/LocationCard";
+import type { Category } from "@/lib/types";
+
+const CATEGORY_ICON: Record<Category, string> = {
+  sheep: "🐑",
+  goat: "🐐",
+  beef: "🐄",
+  chicken: "🐓",
+  eggs: "🥚",
+  duck: "🦆",
+  rabbit: "🐇",
+};
+const CATEGORY_ORDER: Category[] = ["sheep", "goat", "beef", "chicken", "eggs", "duck", "rabbit"];
 
 export default function HomePage() {
   const stock = getAllStock();
 
   return (
     <div>
-      {/* Tesla-style full-bleed hero */}
-      <section className="relative flex min-h-[86vh] items-end overflow-hidden bg-black text-white">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="https://commons.wikimedia.org/wiki/Special:FilePath/Sheep.jpg"
-          alt="Pasture-raised sheep grazing at Meadow & Market farm"
-          className="absolute inset-0 h-full w-full object-cover opacity-70"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
-        <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 pt-40 animate-fadeUp">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
-            Raised on pasture · Delivered to your door
-          </p>
-          <h1 className="max-w-2xl text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
-            Farm to your door,
-            <br /> cut to order.
-          </h1>
-          <p className="mt-5 max-w-md text-base text-white/80">
-            Sheep, goat, chicken, duck, rabbit, and farm-fresh eggs — raised
-            outdoors, priced against today&apos;s market, delivered fresh.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/shop" className="btn-primary">
-              Shop the farm
-            </Link>
-            <Link
-              href="#why"
-              className="btn-secondary border-white/30 text-white hover:bg-white/10"
-            >
-              Why Meadow &amp; Market
-            </Link>
+      {/* Split hero — warm canvas + a framed photo card, not a full-bleed dark banner */}
+      <section className="mx-auto max-w-6xl px-5 pb-6 pt-14">
+        <div className="grid items-center gap-10 lg:grid-cols-2">
+          <div className="animate-fadeUp">
+            <p className="mb-3 pill w-fit bg-accent/10 text-accent dark:text-accent-light">
+              Oakland, CA · Family-run
+            </p>
+            <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl">
+              Real farm, real animals,
+              <br />
+              delivered to your door.
+            </h1>
+            <p className="mt-5 max-w-md text-base text-ink-light/70 dark:text-ink-dark/70">
+              Sheep, goat, beef, chicken, duck, rabbit, and eggs — whole or
+              butchered, priced against today&apos;s market, delivered fresh
+              from 845 Kennedy St in Oakland.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/shop" className="btn-primary">
+                Shop the farm
+              </Link>
+              <Link href="/subscribe" className="btn-secondary">
+                Monthly subscription
+              </Link>
+            </div>
+            <div className="mt-8 flex flex-wrap gap-2">
+              {CATEGORY_ORDER.map((c) => (
+                <Link
+                  key={c}
+                  href={`/shop?category=${c}`}
+                  className="pill border border-line-light bg-surface-light hover:bg-black/5 dark:border-line-dark dark:bg-surface-dark dark:hover:bg-white/10"
+                >
+                  <span aria-hidden>{CATEGORY_ICON[c]}</span> {CATEGORY_LABELS[c]}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="product-photo-frame card relative aspect-[4/3] overflow-hidden lg:aspect-[5/4]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://commons.wikimedia.org/wiki/Special:FilePath/Sheep.jpg"
+              alt="Pasture-raised sheep grazing at Meadow & Market farm"
+              className="product-photo h-full w-full object-cover"
+            />
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-6xl px-5">
-        <div className="-mt-6 flex justify-center">
+        <div className="flex justify-center py-6">
           <SocialProofTicker />
         </div>
 
-        <section className="py-16">
+        <section className="py-10">
           <div className="mb-8 flex items-end justify-between">
             <h2 className="text-2xl font-bold tracking-tight">
               This week on the farm
@@ -59,9 +86,19 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {CATALOG.map((p) => (
+            {CATALOG.slice(0, 6).map((p) => (
               <ProductCard key={p.slug} product={p} stock={stock[p.slug] ?? 0} />
             ))}
+          </div>
+        </section>
+
+        <section className="border-t border-line-light py-16 dark:border-line-dark">
+          <h2 className="text-2xl font-bold tracking-tight">Visit or track your delivery from here</h2>
+          <p className="mt-2 text-ink-light/60 dark:text-ink-dark/60">
+            Every order ships from our Oakland farm — including delivery toward Anaheim, CA.
+          </p>
+          <div className="mt-6">
+            <LocationCard />
           </div>
         </section>
 

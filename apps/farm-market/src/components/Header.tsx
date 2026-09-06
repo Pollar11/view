@@ -1,23 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/store/cart-context";
+import { CATEGORY_LABELS } from "@/lib/products";
+import type { Category } from "@/lib/types";
 import { ThemeToggle } from "./ThemeToggle";
 
-const NAV_LINKS = [
-  { href: "/shop", label: "Shop all" },
-  { href: "/shop?category=sheep", label: "Sheep" },
-  { href: "/shop?category=goat", label: "Goat" },
-  { href: "/shop?category=chicken", label: "Chicken & Eggs" },
-  { href: "/shop?category=duck", label: "Duck" },
-  { href: "/shop?category=rabbit", label: "Rabbit" },
+const CATEGORY_ORDER: Category[] = ["sheep", "goat", "beef", "chicken", "eggs", "duck", "rabbit"];
+
+const TOP_LINKS = [
+  { href: "/subscribe", label: "Subscribe" },
+  { href: "/locations", label: "Locations" },
+  { href: "/deals", label: "Deals" },
 ];
 
 export function Header() {
   const { lines, isHydrated } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [shopOpen, setShopOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const count = lines.reduce((sum, l) => sum + l.qty, 0);
+
+  function openShop() {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setShopOpen(true);
+  }
+  function scheduleCloseShop() {
+    closeTimer.current = setTimeout(() => setShopOpen(false), 150);
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-line-light bg-canvas-light/80 backdrop-blur dark:border-line-dark dark:bg-canvas-dark/80">
@@ -28,7 +39,40 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-7 text-sm font-medium text-ink-light/70 dark:text-ink-dark/70 md:flex">
-          {NAV_LINKS.map((link) => (
+          <div className="relative" onMouseEnter={openShop} onMouseLeave={scheduleCloseShop}>
+            <button
+              onClick={() => setShopOpen((v) => !v)}
+              aria-expanded={shopOpen}
+              className="flex items-center gap-1 transition hover:text-ink-light dark:hover:text-ink-dark"
+            >
+              Shop
+              <ChevronIcon />
+            </button>
+            {shopOpen && (
+              <div className="absolute left-0 top-full pt-2">
+                <div className="w-56 rounded-xl2 border border-line-light bg-surface-light p-2 shadow-soft dark:border-line-dark dark:bg-surface-dark dark:shadow-softDark">
+                  <Link
+                    href="/shop"
+                    className="block rounded-lg px-3 py-2 text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/10"
+                  >
+                    All products
+                  </Link>
+                  <div className="my-1 h-px bg-line-light dark:bg-line-dark" />
+                  {CATEGORY_ORDER.map((c) => (
+                    <Link
+                      key={c}
+                      href={`/shop?category=${c}`}
+                      className="block rounded-lg px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10"
+                    >
+                      {CATEGORY_LABELS[c]}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {TOP_LINKS.map((link) => (
             <Link key={link.href} href={link.href} className="transition hover:text-ink-light dark:hover:text-ink-dark">
               {link.label}
             </Link>
@@ -63,7 +107,33 @@ export function Header() {
       {menuOpen && (
         <nav className="border-t border-line-light px-5 py-3 text-sm font-medium dark:border-line-dark md:hidden">
           <ul className="flex flex-col gap-1">
-            {NAV_LINKS.map((link) => (
+            <li className="px-2 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-ink-light/40 dark:text-ink-dark/40">
+              Shop by animal
+            </li>
+            <li>
+              <Link
+                href="/shop"
+                onClick={() => setMenuOpen(false)}
+                className="block rounded-lg px-2 py-2.5 text-ink-light/80 transition hover:bg-black/5 dark:text-ink-dark/80 dark:hover:bg-white/10"
+              >
+                All products
+              </Link>
+            </li>
+            {CATEGORY_ORDER.map((c) => (
+              <li key={c}>
+                <Link
+                  href={`/shop?category=${c}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="block rounded-lg px-2 py-2.5 text-ink-light/80 transition hover:bg-black/5 dark:text-ink-dark/80 dark:hover:bg-white/10"
+                >
+                  {CATEGORY_LABELS[c]}
+                </Link>
+              </li>
+            ))}
+            <li className="px-2 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-ink-light/40 dark:text-ink-dark/40">
+              More
+            </li>
+            {[...TOP_LINKS, { href: "/admin", label: "Farm dashboard" }].map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
@@ -74,15 +144,6 @@ export function Header() {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link
-                href="/admin"
-                onClick={() => setMenuOpen(false)}
-                className="block rounded-lg px-2 py-2.5 text-ink-light/50 transition hover:bg-black/5 dark:text-ink-dark/50 dark:hover:bg-white/10"
-              >
-                Farm dashboard
-              </Link>
-            </li>
           </ul>
         </nav>
       )}
@@ -96,6 +157,14 @@ function CartIcon() {
       <circle cx="9" cy="21" r="1" />
       <circle cx="20" cy="21" r="1" />
       <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ChevronIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

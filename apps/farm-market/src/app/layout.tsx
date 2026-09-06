@@ -5,6 +5,7 @@ import { CartProvider } from "@/store/cart-context";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ThemeInitScript } from "@/components/ThemeToggle";
+import { ChatWidget } from "@/components/ChatWidget";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -29,6 +30,7 @@ export default function RootLayout({
           <Header />
           <main>{children}</main>
           <Footer />
+          <ChatWidget />
         </CartProvider>
       </body>
     </html>

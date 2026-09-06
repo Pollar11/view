@@ -45,4 +45,32 @@
   .pill {
     @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold;
   }
+
+  /*
+   * Applied to every product photo. Our source photos come from different
+   * photographers/settings (grass, hillside, indoor), so a single subtle
+   * color grade + vignette is used to make them read as one consistent
+   * "farm shoot" instead of a grab-bag of stock photos.
+   */
+  .product-photo {
+    filter: saturate(0.9) contrast(1.05) brightness(1.02) sepia(0.05);
+    position: relative;
+  }
+
+  .product-photo-frame {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .product-photo-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 55%,
+      rgba(20, 25, 18, 0.16) 100%
+    );
+  }
 }
