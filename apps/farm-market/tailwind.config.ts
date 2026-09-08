@@ -15,35 +15,43 @@ const config: Config = {
           "Arial",
           "sans-serif",
         ],
+        display: ["var(--font-fraunces)", "Georgia", "Cambria", "serif"],
       },
       colors: {
+        // Warm parchment/market palette — deliberately not black-and-white
+        // (Tesla) or neutral chat-gray (ChatGPT).
         canvas: {
-          light: "#f7f7f5",
-          dark: "#0b0c0d",
+          light: "#f7f1e4",
+          dark: "#161310",
         },
         surface: {
-          light: "#ffffff",
-          dark: "#141516",
+          light: "#fffcf5",
+          dark: "#211c17",
         },
         ink: {
-          light: "#111214",
-          dark: "#f2f2f0",
+          light: "#2a2118",
+          dark: "#f3ead9",
         },
         accent: {
-          DEFAULT: "#2f6d3e",
-          light: "#3f8c52",
-          dark: "#1f4c2b",
+          DEFAULT: "#9a3412",
+          light: "#c2410c",
+          dark: "#fb923c",
+        },
+        moss: {
+          DEFAULT: "#4b5320",
+          light: "#65722f",
+          dark: "#a3b06a",
         },
         line: {
-          light: "#e6e5e1",
-          dark: "#262728",
+          light: "#e3d8c1",
+          dark: "#3a332a",
         },
       },
       borderRadius: {
-        xl2: "1.25rem",
+        xl2: "0.85rem",
       },
       boxShadow: {
-        soft: "0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06)",
+        soft: "0 1px 2px rgba(42,33,24,0.05), 0 8px 20px rgba(42,33,24,0.08)",
         softDark: "0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.5)",
       },
       keyframes: {

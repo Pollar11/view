@@ -63,7 +63,7 @@ export function ChatWidget() {
           <div className="flex items-center justify-between border-b border-line-light px-4 py-3 dark:border-line-dark">
             <div>
               <div className="text-sm font-semibold">Farm Assistant</div>
-              <div className="text-xs text-ink-light/50 dark:text-ink-dark/50">Automated · not a live person</div>
+              <div className="text-xs text-ink-light/80 dark:text-ink-dark/80">Automated · not a live person</div>
             </div>
             <button
               onClick={() => setOpen(false)}
@@ -88,7 +88,7 @@ export function ChatWidget() {
               </div>
             ))}
             {sending && (
-              <div className="max-w-[85%] rounded-xl2 bg-black/5 px-3 py-2 text-sm text-ink-light/50 dark:bg-white/10 dark:text-ink-dark/50">
+              <div className="max-w-[85%] rounded-xl2 bg-black/5 px-3 py-2 text-sm text-ink-light/80 dark:bg-white/10 dark:text-ink-dark/80">
                 Thinking…
               </div>
             )}

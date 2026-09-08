@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getProduct, CATALOG, CATEGORY_LABELS, CATEGORY_PAIRINGS } from "@/lib/products";
@@ -8,6 +9,17 @@ import { ProductCard } from "@/components/ProductCard";
 
 export function generateStaticParams() {
   return CATALOG.map((p) => ({ slug: p.slug }));
+}
+
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  const product = getProduct(params.slug);
+  if (!product) return { title: "Product not found" };
+  return {
+    title: product.name,
+    description: product.description,
+    alternates: { canonical: `/product/${product.slug}` },
+    openGraph: { images: [{ url: product.image }] },
+  };
 }
 
 export default function ProductPage({ params }: { params: { slug: string } }) {
@@ -24,7 +36,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-10">
-      <nav className="mb-6 text-sm text-ink-light/50 dark:text-ink-dark/50">
+      <nav className="mb-6 text-sm text-ink-light/80 dark:text-ink-dark/80">
         <Link href="/shop" className="hover:underline">Shop</Link> /{" "}
         <Link href={`/shop?category=${product.category}`} className="hover:underline">
           {CATEGORY_LABELS[product.category]}
@@ -58,7 +70,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             ))}
           </ul>
 
-          <p className="mt-4 rounded-lg bg-black/5 p-3 text-xs text-ink-light/60 dark:bg-white/5 dark:text-ink-dark/60">
+          <p className="mt-4 rounded-lg bg-black/5 p-3 text-xs text-ink-light/85 dark:bg-white/5 dark:text-ink-dark/85">
             <span className="font-semibold">On pricing:</span> {product.marketNote}
           </p>
 
@@ -75,7 +87,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             <ProductCard key={p.slug} product={p} stock={getStock(p.slug)} />
           ))}
         </div>
-        <p className="mt-4 text-xs text-ink-light/50 dark:text-ink-dark/50">
+        <p className="mt-4 text-xs text-ink-light/80 dark:text-ink-dark/80">
           Suggestions above are things that genuinely pair with {CATEGORY_LABELS[product.category].toLowerCase()}
           {" "}— not random cross-sells. Mix 2 or more animal categories in one order and save 5%
           automatically, 4 or more saves 10%, applied in your cart.

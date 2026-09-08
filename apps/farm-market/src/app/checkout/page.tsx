@@ -187,7 +187,7 @@ export default function CheckoutPage() {
             </div>
 
             {(paymentMethod === "apple_pay_demo" || paymentMethod === "paypal_demo") && (
-              <p className="text-xs text-ink-light/50 dark:text-ink-dark/50">
+              <p className="text-xs text-ink-light/80 dark:text-ink-dark/80">
                 Demo mode: {paymentMethod === "apple_pay_demo" ? "Apple Pay" : "PayPal"} isn&apos;t
                 actually wired to a processor in this build — placing the order confirms it without
                 a real charge.
@@ -207,7 +207,7 @@ export default function CheckoutPage() {
                     <input className="input" placeholder="123" value={cardCvc} onChange={(e) => setCardCvc(e.target.value)} />
                   </Field>
                 </div>
-                <p className="text-xs text-ink-light/50 dark:text-ink-dark/50">
+                <p className="text-xs text-ink-light/80 dark:text-ink-dark/80">
                   Demo mode: this validates like a real card (Luhn check) but never contacts a payment processor.
                 </p>
               </div>

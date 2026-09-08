@@ -20,7 +20,7 @@ export function LocationCard() {
       </div>
       <div className="p-6">
         <h3 className="text-lg font-bold">Oakland Farm &amp; Pickup</h3>
-        <p className="mt-1 text-sm text-ink-light/60 dark:text-ink-dark/60">
+        <p className="mt-1 text-sm text-ink-light/85 dark:text-ink-dark/85">
           Our home farm and order-processing hub — deliveries ship from here
           within a ~320 mile radius (Anaheim, CA included).
         </p>

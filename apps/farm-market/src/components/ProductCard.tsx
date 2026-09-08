@@ -27,7 +27,7 @@ export function ProductCard({ product, stock }: { product: Product; stock: numbe
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <h3 className="font-semibold">{product.name}</h3>
-        <p className="line-clamp-2 text-sm text-ink-light/60 dark:text-ink-dark/60">
+        <p className="line-clamp-2 text-sm text-ink-light/85 dark:text-ink-dark/85">
           {product.description}
         </p>
         <div className="mt-auto flex items-center justify-between pt-2">

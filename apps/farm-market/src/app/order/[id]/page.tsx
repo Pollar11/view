@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOrder } from "@/lib/db";
 import { money } from "@/lib/format";
 import type { PaymentMethod } from "@/lib/types";
+
+export const metadata: Metadata = {
+  title: "Order Confirmation",
+  robots: { index: false, follow: false },
+};
 
 const PAYMENT_LABELS: Record<PaymentMethod, string> = {
   cod: "Pay on delivery",
@@ -22,12 +28,12 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
           ✓
         </div>
         <h1 className="mt-4 text-3xl font-bold tracking-tight">Order confirmed</h1>
-        <p className="mt-2 text-ink-light/60 dark:text-ink-dark/60">
+        <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
           Order #{order.id.slice(-6).toUpperCase()} — delivery to {order.address.city}, {order.address.state} in
           about {order.deliveryEtaDays} day{order.deliveryEtaDays === 1 ? "" : "s"} (~{order.deliveryMiles} mi from the farm).
         </p>
         {order.smsOptIn && (
-          <p className="mt-1 text-sm text-ink-light/50 dark:text-ink-dark/50">
+          <p className="mt-1 text-sm text-ink-light/80 dark:text-ink-dark/80">
             A confirmation text is on its way to {order.phone}.
           </p>
         )}
@@ -55,7 +61,7 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
           <div className="flex justify-between"><span>Delivery</span><span>{order.deliveryFee === 0 ? "Free" : money(order.deliveryFee)}</span></div>
           <div className="flex justify-between pt-1 text-base font-bold"><span>Total</span><span>{money(order.total)}</span></div>
         </div>
-        <p className="border-t border-line-light pt-2.5 text-xs text-ink-light/50 dark:border-line-dark dark:text-ink-dark/50">
+        <p className="border-t border-line-light pt-2.5 text-xs text-ink-light/80 dark:border-line-dark dark:text-ink-dark/80">
           Payment: {PAYMENT_LABELS[order.paymentMethod]}
         </p>
       </div>

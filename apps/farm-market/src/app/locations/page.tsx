@@ -1,12 +1,16 @@
 import { LocationCard } from "@/components/LocationCard";
 
-export const metadata = { title: "Locations — Meadow & Market" };
+export const metadata = {
+  title: "Locations",
+  description: "845 Kennedy St, Oakland, CA 94606 — hours, directions, and our delivery radius.",
+  alternates: { canonical: "/locations" },
+};
 
 export default function LocationsPage() {
   return (
     <div className="mx-auto max-w-4xl px-5 py-14">
       <h1 className="text-3xl font-bold tracking-tight">Our location</h1>
-      <p className="mt-2 text-ink-light/60 dark:text-ink-dark/60">
+      <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
         One farm, one delivery hub — we ship everything from Oakland. As we
         grow, additional pickup points will be listed here.
       </p>

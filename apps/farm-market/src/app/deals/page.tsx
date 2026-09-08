@@ -1,12 +1,16 @@
 import Link from "next/link";
 
-export const metadata = { title: "Deals — Meadow & Market" };
+export const metadata = {
+  title: "Deals",
+  description: "Automatic Farm Basket discounts, free delivery over $75, and how personal SMS codes work.",
+  alternates: { canonical: "/deals" },
+};
 
 export default function DealsPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 py-14">
       <h1 className="text-3xl font-bold tracking-tight">Deals</h1>
-      <p className="mt-2 text-ink-light/60 dark:text-ink-dark/60">
+      <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
         Real, always-on discounts — applied automatically in your cart, no
         code needed.
       </p>

@@ -12,11 +12,11 @@ export function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <div className="text-[15px] font-bold">🐑 Meadow &amp; Market</div>
-            <p className="mt-2 max-w-xs text-ink-light/60 dark:text-ink-dark/60">
+            <p className="mt-2 max-w-xs text-ink-light/85 dark:text-ink-dark/85">
               Pasture-raised sheep, goat, beef, chicken, duck, rabbit, and eggs —
               cut to order and delivered to your door.
             </p>
-            <address className="mt-4 not-italic text-ink-light/60 dark:text-ink-dark/60">
+            <address className="mt-4 not-italic text-ink-light/85 dark:text-ink-dark/85">
               <a href={GOOGLE_MAPS_DIRECTIONS_URL} target="_blank" rel="noreferrer" className="block hover:underline">
                 {FARM_ADDRESS_LABEL}
               </a>
@@ -28,7 +28,7 @@ export function Footer() {
 
           <div>
             <div className="font-semibold">Shop</div>
-            <ul className="mt-2 space-y-1.5 text-ink-light/60 dark:text-ink-dark/60">
+            <ul className="mt-2 space-y-1.5 text-ink-light/85 dark:text-ink-dark/85">
               <li><Link href="/shop" className="hover:underline">All products</Link></li>
               {CATEGORY_ORDER.map((c) => (
                 <li key={c}>
@@ -42,7 +42,7 @@ export function Footer() {
 
           <div>
             <div className="font-semibold">Company</div>
-            <ul className="mt-2 space-y-1.5 text-ink-light/60 dark:text-ink-dark/60">
+            <ul className="mt-2 space-y-1.5 text-ink-light/85 dark:text-ink-dark/85">
               <li><Link href="/about" className="hover:underline">About us</Link></li>
               <li><Link href="/locations" className="hover:underline">Locations</Link></li>
               <li><Link href="/deals" className="hover:underline">Deals</Link></li>
@@ -54,7 +54,7 @@ export function Footer() {
 
           <div>
             <div className="font-semibold">Support</div>
-            <ul className="mt-2 space-y-1.5 text-ink-light/60 dark:text-ink-dark/60">
+            <ul className="mt-2 space-y-1.5 text-ink-light/85 dark:text-ink-dark/85">
               <li><Link href="/faq" className="hover:underline">FAQ</Link></li>
               <li><Link href="/terms" className="hover:underline">Terms of service</Link></li>
               <li><Link href="/privacy" className="hover:underline">Privacy policy</Link></li>
@@ -64,7 +64,7 @@ export function Footer() {
           </div>
         </div>
 
-        <details className="mt-10 text-xs text-ink-light/50 dark:text-ink-dark/50">
+        <details className="mt-10 text-xs text-ink-light/80 dark:text-ink-dark/80">
           <summary className="cursor-pointer select-none font-medium">
             Photo credits
           </summary>
@@ -86,7 +86,7 @@ export function Footer() {
           </ul>
         </details>
 
-        <p className="mt-8 text-xs text-ink-light/40 dark:text-ink-dark/40">
+        <p className="mt-8 text-xs text-ink-light/75 dark:text-ink-dark/75">
           © {new Date().getFullYear()} Meadow &amp; Market Farm. Demo storefront —
           payments shown here are simulated, no real card is charged.
         </p>

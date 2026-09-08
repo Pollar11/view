@@ -1,12 +1,16 @@
 import { FARM_ADDRESS_LABEL, FARM_PHONE } from "@/lib/site";
 
-export const metadata = { title: "Terms of Service — Meadow & Market" };
+export const metadata = {
+  title: "Terms of Service",
+  description: "Terms covering orders, pricing, delivery, payment, SMS, and subscriptions.",
+  alternates: { canonical: "/terms" },
+};
 
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 py-14">
       <h1 className="text-3xl font-bold tracking-tight">Terms of service</h1>
-      <p className="mt-2 text-sm text-ink-light/50 dark:text-ink-dark/50">
+      <p className="mt-2 text-sm text-ink-light/80 dark:text-ink-dark/80">
         Demo storefront — this text is illustrative, not reviewed legal counsel.
       </p>
 

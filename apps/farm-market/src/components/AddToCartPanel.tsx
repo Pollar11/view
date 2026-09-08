@@ -86,7 +86,7 @@ export function AddToCartPanel({ product, stock }: { product: Product; stock: nu
       </div>
 
       <div className="mb-4 flex items-baseline justify-between border-t border-line-light pt-4 dark:border-line-dark">
-        <span className="text-sm text-ink-light/60 dark:text-ink-dark/60">Line total</span>
+        <span className="text-sm text-ink-light/85 dark:text-ink-dark/85">Line total</span>
         <span className="text-xl font-bold">{money(lineTotal)}</span>
       </div>
 

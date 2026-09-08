@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAssistantReply } from "@/lib/assistant";
+import { rateLimit } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
   message: z.string().trim().min(1).max(500),
@@ -16,6 +17,13 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: Request) {
+  if (!rateLimit(req, "assistant", { limit: 20, windowMs: 10 * 60 * 1000 })) {
+    return NextResponse.json(
+      { error: "Too many messages — please slow down a moment." },
+      { status: 429 },
+    );
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {

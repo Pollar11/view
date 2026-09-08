@@ -3,6 +3,7 @@ import { z } from "zod";
 import { phoneSchema, cartLineSchema } from "@/lib/validation";
 import { computeTotals } from "@/lib/pricing";
 import { sendSms, cartReminderSms } from "@/lib/sms";
+import { rateLimit } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
   phone: phoneSchema,
@@ -16,6 +17,13 @@ const bodySchema = z.object({
  * for this one message (same spirit as the checkout SMS opt-in).
  */
 export async function POST(req: Request) {
+  if (!rateLimit(req, "cart-text", { limit: 3, windowMs: 10 * 60 * 1000 })) {
+    return NextResponse.json(
+      { error: "Too many texts requested — please wait a bit and try again." },
+      { status: 429 },
+    );
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {

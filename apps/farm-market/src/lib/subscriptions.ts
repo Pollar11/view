@@ -13,9 +13,9 @@ interface PlanDef {
  * so the subscription price is always derived from real catalog pricing,
  * never a separately made-up number. */
 const PLAN_DEFS: PlanDef[] = [
-  { category: "sheep", slug: "lamb-chops", monthlyQty: 3 },
+  { category: "sheep", slug: "lamb-rib-chops", monthlyQty: 3 },
   { category: "goat", slug: "goat-chops", monthlyQty: 3 },
-  { category: "beef", slug: "beef-steaks", monthlyQty: 3 },
+  { category: "beef", slug: "beef-ribeye-steaks", monthlyQty: 3 },
   { category: "chicken", slug: "farm-chicken", monthlyQty: 3 },
   { category: "eggs", slug: "farm-eggs-dozen", monthlyQty: 4 },
   { category: "duck", slug: "farm-duck", monthlyQty: 2 },

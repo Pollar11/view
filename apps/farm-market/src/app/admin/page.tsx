@@ -89,16 +89,16 @@ export default function AdminPage() {
   }
 
   if (authed === null) {
-    return <div className="mx-auto max-w-md px-5 py-24 text-center text-ink-light/50">Loading…</div>;
+    return <div className="mx-auto max-w-md px-5 py-24 text-center text-ink-light/80">Loading…</div>;
   }
 
   if (!authed) {
     return (
       <div className="mx-auto max-w-sm px-5 py-24">
         <h1 className="text-2xl font-bold">Farm dashboard</h1>
-        <p className="mt-1 text-sm text-ink-light/60 dark:text-ink-dark/60">
-          Owner access only. Default demo password is <code>farm2026</code>{" "}
-          unless <code>ADMIN_PASSWORD</code> is set.
+        <p className="mt-1 text-sm text-ink-light/85 dark:text-ink-dark/85">
+          Owner access only. Set <code>ADMIN_PASSWORD</code> in your environment
+          before deploying — see the project README for the local-dev default.
         </p>
         <form onSubmit={handleLogin} className="mt-6 space-y-3">
           <input
@@ -130,7 +130,7 @@ export default function AdminPage() {
 
       <section className="mt-10">
         <h2 className="text-xl font-bold tracking-tight">Win-back SMS campaign</h2>
-        <p className="mt-1 text-sm text-ink-light/60 dark:text-ink-dark/60">
+        <p className="mt-1 text-sm text-ink-light/85 dark:text-ink-dark/85">
           Only sends to customers who opted into SMS at checkout — never automatic,
           you choose who gets texted and click send.
         </p>
@@ -170,7 +170,7 @@ export default function AdminPage() {
         <div className="mt-5 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-line-light text-left text-ink-light/50 dark:border-line-dark dark:text-ink-dark/50">
+              <tr className="border-b border-line-light text-left text-ink-light/80 dark:border-line-dark dark:text-ink-dark/80">
                 <th className="py-2"></th>
                 <th className="py-2">Customer</th>
                 <th className="py-2">Phone</th>
@@ -190,17 +190,17 @@ export default function AdminPage() {
                     />
                   </td>
                   <td className="py-2 font-medium">{c.name}</td>
-                  <td className="py-2 text-ink-light/60 dark:text-ink-dark/60">{c.phone}</td>
+                  <td className="py-2 text-ink-light/85 dark:text-ink-dark/85">{c.phone}</td>
                   <td className="py-2">{c.totalOrders}</td>
                   <td className="py-2">{money(c.totalSpent)}</td>
-                  <td className="py-2 text-ink-light/60 dark:text-ink-dark/60">
+                  <td className="py-2 text-ink-light/85 dark:text-ink-dark/85">
                     {new Date(c.lastOrderAt).toLocaleDateString()}
                   </td>
                 </tr>
               ))}
               {winBackCandidates.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-6 text-center text-ink-light/40">
+                  <td colSpan={6} className="py-6 text-center text-ink-light/75">
                     No SMS-opted-in customers yet.
                   </td>
                 </tr>
@@ -231,7 +231,7 @@ export default function AdminPage() {
             </div>
           ))}
           {(!data || data.orders.length === 0) && (
-            <p className="text-ink-light/40">No orders yet.</p>
+            <p className="text-ink-light/75">No orders yet.</p>
           )}
         </div>
       </section>
@@ -243,13 +243,13 @@ export default function AdminPage() {
             <div key={s.id} className="card p-3 text-xs">
               <div className="flex justify-between font-medium">
                 <span>{s.to} · {s.campaign} · {s.mode}</span>
-                <span className="text-ink-light/40">{new Date(s.createdAt).toLocaleString()}</span>
+                <span className="text-ink-light/75">{new Date(s.createdAt).toLocaleString()}</span>
               </div>
-              <p className="mt-1 text-ink-light/60 dark:text-ink-dark/60">{s.body}</p>
+              <p className="mt-1 text-ink-light/85 dark:text-ink-dark/85">{s.body}</p>
             </div>
           ))}
           {(!data || data.smsLog.length === 0) && (
-            <p className="text-ink-light/40">No messages sent yet.</p>
+            <p className="text-ink-light/75">No messages sent yet.</p>
           )}
         </div>
       </section>
@@ -261,7 +261,7 @@ function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="card p-4">
       <div className="text-2xl font-bold">{value}</div>
-      <div className="text-xs text-ink-light/50 dark:text-ink-dark/50">{label}</div>
+      <div className="text-xs text-ink-light/80 dark:text-ink-dark/80">{label}</div>
     </div>
   );
 }

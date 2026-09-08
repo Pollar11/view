@@ -1,12 +1,16 @@
 import { FARM_PHONE } from "@/lib/site";
 
-export const metadata = { title: "Privacy Policy — Meadow & Market" };
+export const metadata = {
+  title: "Privacy Policy",
+  description: "What we collect, how SMS opt-in works, and your rights.",
+  alternates: { canonical: "/privacy" },
+};
 
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 py-14">
       <h1 className="text-3xl font-bold tracking-tight">Privacy policy</h1>
-      <p className="mt-2 text-sm text-ink-light/50 dark:text-ink-dark/50">
+      <p className="mt-2 text-sm text-ink-light/80 dark:text-ink-dark/80">
         Demo storefront — this text is illustrative, not reviewed legal counsel.
       </p>
 

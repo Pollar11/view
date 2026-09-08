@@ -13,9 +13,17 @@ import {
   upsertCustomer,
 } from "@/lib/db";
 import { sendSms, orderConfirmationSms } from "@/lib/sms";
+import { rateLimit } from "@/lib/rate-limit";
 import type { Order } from "@/lib/types";
 
 export async function POST(req: Request) {
+  if (!rateLimit(req, "checkout", { limit: 10, windowMs: 10 * 60 * 1000 })) {
+    return NextResponse.json(
+      { error: "Too many attempts — please wait a few minutes and try again." },
+      { status: 429 },
+    );
+  }
+
   let body: unknown;
   try {
     body = await req.json();

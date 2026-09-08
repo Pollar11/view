@@ -1,6 +1,10 @@
 import { FARM_ADDRESS_LABEL, FARM_PHONE } from "@/lib/site";
 
-export const metadata = { title: "About Us — Meadow & Market" };
+export const metadata = {
+  title: "About Us",
+  description: "A family-run farm at 845 Kennedy St, Oakland, CA, selling direct to households instead of through a wholesale middleman.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (

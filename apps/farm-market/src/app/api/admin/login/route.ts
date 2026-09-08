@@ -5,6 +5,7 @@ import {
   ADMIN_COOKIE_NAME,
   createAdminToken,
 } from "@/lib/admin-auth";
+import { rateLimit } from "@/lib/rate-limit";
 
 const DEFAULT_DEMO_PASSWORD = "farm2026";
 
@@ -20,6 +21,13 @@ function timingSafeStringEqual(a: string, b: string): boolean {
 }
 
 export async function POST(req: Request) {
+  if (!rateLimit(req, "admin-login", { limit: 5, windowMs: 10 * 60 * 1000 })) {
+    return NextResponse.json(
+      { error: "Too many attempts — please wait a few minutes." },
+      { status: 429 },
+    );
+  }
+
   const body = await req.json().catch(() => null);
   const password = typeof body?.password === "string" ? body.password : "";
   const expected = process.env.ADMIN_PASSWORD || DEFAULT_DEMO_PASSWORD;

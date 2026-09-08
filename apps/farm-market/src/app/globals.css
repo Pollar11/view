@@ -12,6 +12,11 @@
     font-feature-settings: "cv11", "ss01";
   }
 
+  h1, h2, h3 {
+    font-family: var(--font-fraunces), Georgia, Cambria, serif;
+    letter-spacing: -0.01em;
+  }
+
   ::selection {
     @apply bg-accent/30;
   }
@@ -23,27 +28,27 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-ink-light px-6 py-3 text-sm font-semibold text-canvas-light transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-ink-dark dark:text-canvas-dark;
+    @apply inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent-light disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full border border-line-light bg-transparent px-6 py-3 text-sm font-semibold transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40 dark:border-line-dark dark:hover:bg-white/5;
+    @apply inline-flex items-center justify-center rounded-lg border-2 border-ink-light/15 bg-transparent px-6 py-3 text-sm font-semibold text-ink-light transition hover:border-ink-light/30 hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40 dark:border-ink-dark/20 dark:text-ink-dark dark:hover:border-ink-dark/40 dark:hover:bg-white/5;
   }
 
   .input {
-    @apply w-full rounded-lg border border-line-light bg-surface-light px-3.5 py-2.5 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 dark:border-line-dark dark:bg-surface-dark;
+    @apply w-full rounded-lg border border-line-light bg-surface-light px-3.5 py-2.5 text-sm text-ink-light outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark;
   }
 
   .label {
-    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-light/60 dark:text-ink-dark/60;
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-light/80 dark:text-ink-dark/80;
   }
 
   .field-error {
-    @apply mt-1 text-xs font-medium text-red-600 dark:text-red-400;
+    @apply mt-1 text-xs font-medium text-red-700 dark:text-red-400;
   }
 
   .pill {
-    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold;
+    @apply inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-semibold;
   }
 
   /*
@@ -53,7 +58,7 @@
    * "farm shoot" instead of a grab-bag of stock photos.
    */
   .product-photo {
-    filter: saturate(0.9) contrast(1.05) brightness(1.02) sepia(0.05);
+    filter: saturate(0.92) contrast(1.05) brightness(1.02) sepia(0.08) hue-rotate(-4deg);
     position: relative;
   }
 
@@ -70,7 +75,7 @@
     background: radial-gradient(
       ellipse at center,
       transparent 55%,
-      rgba(20, 25, 18, 0.16) 100%
+      rgba(42, 33, 24, 0.18) 100%
     );
   }
 }

@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CATALOG, CATEGORY_LABELS } from "@/lib/products";
 import { getAllStock } from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "Farm-to-Door Sheep, Goat, Beef, Chicken, Duck & Rabbit",
+  description:
+    "Pasture-raised meat and eggs from a real Oakland, CA farm — whole or butchered, priced against today's market, delivered to your door.",
+  alternates: { canonical: "/" },
+};
 import { ProductCard } from "@/components/ProductCard";
 import { SocialProofTicker } from "@/components/SocialProofTicker";
 import { LocationCard } from "@/components/LocationCard";
@@ -39,12 +47,12 @@ export default function HomePage() {
               butchered, priced against today&apos;s market, delivered fresh
               from 845 Kennedy St in Oakland.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-5">
               <Link href="/shop" className="btn-primary">
                 Shop the farm
               </Link>
-              <Link href="/subscribe" className="btn-secondary">
-                Monthly subscription
+              <Link href="/subscribe" className="text-sm font-semibold underline underline-offset-4 hover:text-accent">
+                Or set up a monthly box →
               </Link>
             </div>
             <div className="mt-8 flex flex-wrap gap-2">
@@ -94,7 +102,7 @@ export default function HomePage() {
 
         <section className="border-t border-line-light py-16 dark:border-line-dark">
           <h2 className="text-2xl font-bold tracking-tight">Visit or track your delivery from here</h2>
-          <p className="mt-2 text-ink-light/60 dark:text-ink-dark/60">
+          <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
             Every order ships from our Oakland farm — including delivery toward Anaheim, CA.
           </p>
           <div className="mt-6">
@@ -128,7 +136,7 @@ function Why({ title, body }: { title: string; body: string }) {
   return (
     <div>
       <h3 className="font-semibold">{title}</h3>
-      <p className="mt-1.5 text-sm text-ink-light/60 dark:text-ink-dark/60">{body}</p>
+      <p className="mt-1.5 text-sm text-ink-light/85 dark:text-ink-dark/85">{body}</p>
     </div>
   );
 }

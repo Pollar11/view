@@ -1,12 +1,16 @@
 import { FAQ } from "@/lib/faq";
 
-export const metadata = { title: "FAQ — Meadow & Market" };
+export const metadata = {
+  title: "FAQ",
+  description: "Answers on delivery area, pricing, subscriptions, payment methods, and SMS opt-in.",
+  alternates: { canonical: "/faq" },
+};
 
 export default function FaqPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 py-14">
       <h1 className="text-3xl font-bold tracking-tight">Frequently asked questions</h1>
-      <p className="mt-2 text-ink-light/60 dark:text-ink-dark/60">
+      <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
         Can&apos;t find your answer? The chat assistant in the corner of this
         site is trained on exactly this list, or call (510) 535-1111.
       </p>

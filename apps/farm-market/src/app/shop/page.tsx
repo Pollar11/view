@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CATALOG, CATEGORY_LABELS } from "@/lib/products";
 import { getAllStock } from "@/lib/db";
 import { ProductCard } from "@/components/ProductCard";
 import type { Category } from "@/lib/types";
+
+export const metadata: Metadata = {
+  title: "Shop All Products",
+  description:
+    "Browse sheep, goat, beef, chicken, duck, rabbit, and eggs — whole or butchered, priced against today's market.",
+  alternates: { canonical: "/shop" },
+};
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as Category[];
 
@@ -18,7 +26,7 @@ export default function ShopPage({
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">
       <h1 className="text-3xl font-bold tracking-tight">Shop the farm</h1>
-      <p className="mt-2 text-ink-light/60 dark:text-ink-dark/60">
+      <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
         Pasture-raised meat and eggs, priced against current market rates.
       </p>
 

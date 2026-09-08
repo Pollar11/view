@@ -64,7 +64,7 @@ export default function SubscribePage() {
   return (
     <div className="mx-auto max-w-4xl px-5 py-14">
       <h1 className="text-3xl font-bold tracking-tight">Monthly subscription boxes</h1>
-      <p className="mt-2 text-ink-light/60 dark:text-ink-dark/60">
+      <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
         Pick an animal, enter your ZIP, and see the real monthly price —
         including delivery, calculated the same way as at checkout.
       </p>
@@ -92,7 +92,7 @@ export default function SubscribePage() {
             <div>
               <span className="label">Delivery ZIP</span>
               <input className="input" value={zip} onChange={(e) => setZip(e.target.value)} maxLength={5} />
-              <p className="mt-1 text-xs text-ink-light/50 dark:text-ink-dark/50">
+              <p className="mt-1 text-xs text-ink-light/80 dark:text-ink-dark/80">
                 Try 92801 (Anaheim, CA) or your own ZIP.
               </p>
             </div>
@@ -116,7 +116,7 @@ export default function SubscribePage() {
                 {status === "sending" ? "Sending…" : "Start subscription request"}
               </button>
             )}
-            <p className="text-xs text-ink-light/50 dark:text-ink-dark/50">
+            <p className="text-xs text-ink-light/80 dark:text-ink-dark/80">
               This records your interest and texts a confirmation — it does not
               charge a card. The farm calls to actually set up recurring
               delivery and payment.
@@ -141,7 +141,7 @@ export default function SubscribePage() {
                 }
               />
               {quote.inServiceArea && (
-                <p className="text-xs text-ink-light/50 dark:text-ink-dark/50">
+                <p className="text-xs text-ink-light/80 dark:text-ink-dark/80">
                   ~{quote.deliveryMiles} mi from the farm — about {quote.deliveryEtaDays} day
                   {quote.deliveryEtaDays === 1 ? "" : "s"} per delivery.
                 </p>
@@ -155,9 +155,9 @@ export default function SubscribePage() {
               </div>
             </>
           ) : (
-            <p className="text-xs text-ink-light/50 dark:text-ink-dark/50">Enter a 5-digit ZIP to see delivery pricing.</p>
+            <p className="text-xs text-ink-light/80 dark:text-ink-dark/80">Enter a 5-digit ZIP to see delivery pricing.</p>
           )}
-          <p className="text-xs text-ink-light/50 dark:text-ink-dark/50">
+          <p className="text-xs text-ink-light/80 dark:text-ink-dark/80">
             Delivery included free once the box itself is $50+; otherwise the
             standard delivery fee applies each month.
           </p>

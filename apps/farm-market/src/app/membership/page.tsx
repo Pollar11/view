@@ -33,7 +33,7 @@ export default function MembershipPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 py-14">
       <h1 className="text-3xl font-bold tracking-tight">Membership</h1>
-      <p className="mt-2 text-ink-light/60 dark:text-ink-dark/60">
+      <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
         There&apos;s no separate account to create — your tier is based on the
         phone number you use at checkout. Order more, unlock more.
       </p>
@@ -43,7 +43,7 @@ export default function MembershipPage() {
           <div key={tier.name} className="card flex items-center justify-between p-4">
             <div>
               <div className="font-semibold">{tier.name}</div>
-              <div className="text-sm text-ink-light/60 dark:text-ink-dark/60">{tier.perk}</div>
+              <div className="text-sm text-ink-light/85 dark:text-ink-dark/85">{tier.perk}</div>
             </div>
             <span className="pill bg-black/5 dark:bg-white/10">
               {tier.minOrders === 0 ? "Everyone" : `${tier.minOrders}+ orders`}
@@ -54,7 +54,7 @@ export default function MembershipPage() {
 
       <div className="card mt-10 p-6">
         <h2 className="font-semibold">Check your tier</h2>
-        <p className="mt-1 text-sm text-ink-light/60 dark:text-ink-dark/60">
+        <p className="mt-1 text-sm text-ink-light/85 dark:text-ink-dark/85">
           Enter the phone number you&apos;ve used at checkout.
         </p>
         <div className="mt-3 flex gap-2">
@@ -77,7 +77,7 @@ export default function MembershipPage() {
                   You&apos;re {result.tier} tier — {result.totalOrders} order{result.totalOrders === 1 ? "" : "s"},{" "}
                   {money(result.totalSpent ?? 0)} total.
                 </p>
-                <p className="mt-1 text-ink-light/60 dark:text-ink-dark/60">{result.perk}</p>
+                <p className="mt-1 text-ink-light/85 dark:text-ink-dark/85">{result.perk}</p>
               </>
             ) : (
               <p>No orders yet on that number — place your first order to become a Pasture-tier member.</p>

@@ -51,14 +51,14 @@ export default function CartPage() {
   }
 
   if (!isHydrated) {
-    return <div className="mx-auto max-w-4xl px-5 py-16 text-center text-ink-light/50">Loading cart…</div>;
+    return <div className="mx-auto max-w-4xl px-5 py-16 text-center text-ink-light/80">Loading cart…</div>;
   }
 
   if (lines.length === 0) {
     return (
       <div className="mx-auto max-w-2xl px-5 py-20 text-center">
         <h1 className="text-2xl font-bold">Your cart is empty</h1>
-        <p className="mt-2 text-ink-light/60 dark:text-ink-dark/60">
+        <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
           Fresh sheep, goat, chicken, duck, rabbit, and eggs are waiting.
         </p>
         <Link href="/shop" className="btn-primary mt-6 inline-flex">
@@ -98,7 +98,7 @@ export default function CartPage() {
                       <Link href={`/product/${product.slug}`} className="font-semibold hover:underline">
                         {product.name}
                       </Link>
-                      <p className="text-xs text-ink-light/50 dark:text-ink-dark/50">{line.unitLabel}</p>
+                      <p className="text-xs text-ink-light/80 dark:text-ink-dark/80">{line.unitLabel}</p>
                     </div>
                     <span className="font-bold">{money(lineTotal)}</span>
                   </div>
@@ -122,7 +122,7 @@ export default function CartPage() {
                     </div>
                     <button
                       onClick={() => removeLine(idx)}
-                      className="text-xs font-medium text-ink-light/50 underline hover:text-red-500 dark:text-ink-dark/50"
+                      className="text-xs font-medium text-ink-light/80 underline hover:text-red-500 dark:text-ink-dark/80"
                     >
                       Remove
                     </button>
@@ -214,7 +214,7 @@ export default function CartPage() {
               </p>
             ) : (
               <>
-                <p className="mb-2 text-xs text-ink-light/60 dark:text-ink-dark/60">
+                <p className="mb-2 text-xs text-ink-light/85 dark:text-ink-dark/85">
                   Text yourself a reminder of what&apos;s in your cart right now (one message, sent only when you tap this).
                 </p>
                 <div className="flex gap-2">

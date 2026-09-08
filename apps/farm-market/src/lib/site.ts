@@ -1,5 +1,14 @@
 export const FARM_NAME = "Meadow & Market";
 
+export const FARM_TAGLINE =
+  "Pasture-raised sheep, goat, beef, chicken, duck, rabbit, and eggs — cut to order and delivered to your door.";
+
+/** Canonical site origin for metadata, sitemap, and OG tags. Set
+ * NEXT_PUBLIC_SITE_URL once a real domain/preview URL exists; falls back to
+ * localhost for dev so nothing crashes before that's configured. */
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "http://localhost:3100";
+
 export const FARM_ADDRESS = {
   street: "845 Kennedy St",
   city: "Oakland",

@@ -6,6 +6,7 @@ import { CATEGORY_LABELS } from "@/lib/products";
 import type { Category } from "@/lib/types";
 import { createSubscriptionLead } from "@/lib/db";
 import { sendSms, subscriptionLeadSms } from "@/lib/sms";
+import { rateLimit } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
   category: z.string(),
@@ -21,6 +22,13 @@ const bodySchema = z.object({
  * same as the SMS says.
  */
 export async function POST(req: Request) {
+  if (!rateLimit(req, "subscription-start", { limit: 3, windowMs: 10 * 60 * 1000 })) {
+    return NextResponse.json(
+      { error: "Too many requests — please wait a bit and try again." },
+      { status: 429 },
+    );
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {

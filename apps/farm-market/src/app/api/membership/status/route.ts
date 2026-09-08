@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { phoneSchema } from "@/lib/validation";
 import { findCustomerByPhone } from "@/lib/db";
 import { findTier } from "@/lib/membership";
+import { rateLimit } from "@/lib/rate-limit";
 
 /**
  * Looks up membership tier by the phone number the visitor themselves
@@ -10,6 +11,10 @@ import { findTier } from "@/lib/membership";
  * the customer's address or other PII.
  */
 export async function GET(req: Request) {
+  if (!rateLimit(req, "membership-status", { limit: 20, windowMs: 10 * 60 * 1000 })) {
+    return NextResponse.json({ error: "Too many attempts" }, { status: 429 });
+  }
+
   const { searchParams } = new URL(req.url);
   const parsed = phoneSchema.safeParse(searchParams.get("phone") ?? "");
   if (!parsed.success) {
