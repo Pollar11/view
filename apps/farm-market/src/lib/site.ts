@@ -1,5 +1,8 @@
 export const FARM_NAME = "Meadow & Market";
 
+/** Bump whenever privacy.tsx or terms/page.tsx content actually changes. */
+export const LEGAL_LAST_UPDATED = "September 8, 2026";
+
 export const FARM_TAGLINE =
   "Pasture-raised sheep, goat, beef, chicken, duck, rabbit, and eggs — cut to order and delivered to your door.";
 

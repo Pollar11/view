@@ -6,6 +6,8 @@ import { getStock } from "@/lib/db";
 import { AddToCartPanel } from "@/components/AddToCartPanel";
 import { StockBadge } from "@/components/StockBadge";
 import { ProductCard } from "@/components/ProductCard";
+import { estimatedPrice } from "@/lib/display";
+import { SITE_URL } from "@/lib/site";
 
 export function generateStaticParams() {
   return CATALOG.map((p) => ({ slug: p.slug }));
@@ -34,8 +36,31 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     .sort((a, b) => pairedCategories.indexOf(a.category) - pairedCategories.indexOf(b.category))
     .slice(0, 3);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: product.image,
+    sku: product.slug,
+    category: CATEGORY_LABELS[product.category],
+    offers: {
+      "@type": "Offer",
+      url: `${SITE_URL}/product/${product.slug}`,
+      priceCurrency: "USD",
+      price: estimatedPrice(product).toFixed(2),
+      availability:
+        stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    },
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-5 py-10">
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav className="mb-6 text-sm text-ink-light/80 dark:text-ink-dark/80">
         <Link href="/shop" className="hover:underline">Shop</Link> /{" "}
         <Link href={`/shop?category=${product.category}`} className="hover:underline">

@@ -19,7 +19,7 @@ export function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-line-light bg-surface-light p-4 shadow-soft dark:border-line-dark dark:bg-surface-dark dark:shadow-softDark sm:p-5">
+    <div className="print:hidden fixed inset-x-0 bottom-0 z-50 border-t border-line-light bg-surface-light p-4 shadow-soft dark:border-line-dark dark:bg-surface-dark dark:shadow-softDark sm:p-5">
       <div className="mx-auto flex max-w-6xl flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-ink-light/90 dark:text-ink-dark/90">
           We use essential cookies to run this site (like keeping the farm

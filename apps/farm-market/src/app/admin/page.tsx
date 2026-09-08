@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { money } from "@/lib/format";
 import type { Customer, Order, SmsLogEntry } from "@/lib/types";
+import { ConfirmModal } from "@/components/ConfirmModal";
 
 interface OrdersResponse {
   orders: Order[];
@@ -13,7 +14,9 @@ interface OrdersResponse {
 export default function AdminPage() {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [confirmWinBack, setConfirmWinBack] = useState(false);
 
   const [data, setData] = useState<OrdersResponse | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -101,13 +104,23 @@ export default function AdminPage() {
           before deploying — see the project README for the local-dev default.
         </p>
         <form onSubmit={handleLogin} className="mt-6 space-y-3">
-          <input
-            type="password"
-            className="input"
-            placeholder="Admin password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              className="input pr-16"
+              placeholder="Admin password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-light/70 hover:text-accent dark:text-ink-dark/70 dark:hover:text-accent-light"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
           {loginError && <p className="field-error">{loginError}</p>}
           <button className="btn-primary w-full">Sign in</button>
         </form>
@@ -159,13 +172,25 @@ export default function AdminPage() {
             />
           </div>
           <button
-            onClick={sendWinBack}
+            onClick={() => setConfirmWinBack(true)}
             disabled={sending || selected.size === 0}
             className="btn-primary"
           >
             {sending ? "Sending…" : `Send to ${selected.size} customer${selected.size === 1 ? "" : "s"}`}
           </button>
         </div>
+
+        <ConfirmModal
+          open={confirmWinBack}
+          title="Send win-back texts?"
+          message={`This sends a real SMS with a ${percentOff}% discount code to ${selected.size} customer${selected.size === 1 ? "" : "s"} right now. This can't be undone.`}
+          confirmLabel="Send now"
+          onConfirm={() => {
+            setConfirmWinBack(false);
+            sendWinBack();
+          }}
+          onCancel={() => setConfirmWinBack(false)}
+        />
 
         <div className="mt-5 overflow-x-auto">
           <table className="w-full text-sm">
@@ -226,7 +251,14 @@ export default function AdminPage() {
         <div className="mt-4 space-y-2">
           {data?.orders.slice(0, 15).map((o) => (
             <div key={o.id} className="card flex items-center justify-between p-3 text-sm">
-              <span>#{o.id.slice(-6).toUpperCase()} — {o.address.fullName} ({o.address.city}, {o.address.state})</span>
+              <span>
+                #{o.id.slice(-6).toUpperCase()} — {o.address.fullName} ({o.address.city}, {o.address.state})
+                {o.utm?.source && (
+                  <span className="ml-2 pill bg-black/5 text-[10px] dark:bg-white/10">
+                    via {o.utm.source}{o.utm.medium ? `/${o.utm.medium}` : ""}
+                  </span>
+                )}
+              </span>
               <span className="font-semibold">{money(o.total)}</span>
             </div>
           ))}

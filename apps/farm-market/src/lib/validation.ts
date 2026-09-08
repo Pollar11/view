@@ -35,6 +35,17 @@ export const cartLineSchema = z.object({
   qty: z.number().int().positive().max(50),
 });
 
+export const utmSchema = z
+  .object({
+    source: z.string().trim().max(100).optional(),
+    medium: z.string().trim().max(100).optional(),
+    campaign: z.string().trim().max(100).optional(),
+    term: z.string().trim().max(100).optional(),
+    content: z.string().trim().max(100).optional(),
+  })
+  .optional()
+  .nullable();
+
 export const checkoutSchema = z.object({
   items: z.array(cartLineSchema).min(1, "Your cart is empty"),
   address: addressSchema,
@@ -49,6 +60,7 @@ export const checkoutSchema = z.object({
       cvc: z.string().trim(),
     })
     .optional(),
+  utm: utmSchema,
 });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

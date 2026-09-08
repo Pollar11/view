@@ -68,6 +68,14 @@ export interface OrderItem {
 
 export type PaymentMethod = "cod" | "card_demo" | "apple_pay_demo" | "paypal_demo";
 
+export interface UtmAttribution {
+  source?: string;
+  medium?: string;
+  campaign?: string;
+  term?: string;
+  content?: string;
+}
+
 export interface Order {
   id: string;
   customerId: string;
@@ -87,6 +95,7 @@ export interface Order {
   deliveryMiles: number;
   status: "confirmed";
   createdAt: string;
+  utm: UtmAttribution | null;
 }
 
 export interface Customer {

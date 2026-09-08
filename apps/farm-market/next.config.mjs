@@ -17,6 +17,26 @@ const nextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "img-src 'self' data: https://commons.wikimedia.org https://upload.wikimedia.org",
+              "style-src 'self' 'unsafe-inline'",
+              // 'unsafe-eval' is required only by Next.js's dev-mode webpack bundle
+              // (HMR/React Refresh use eval-based sourcemaps) — never needed in a
+              // production build, so it's dropped there to keep the real CSP strict.
+              `script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com${
+                process.env.NODE_ENV !== "production" ? " 'unsafe-eval'" : ""
+              }`,
+              "connect-src 'self' https://vitals.vercel-insights.com",
+              "frame-src 'self' https://www.openstreetmap.org",
+              "font-src 'self' data:",
+              "base-uri 'self'",
+              "form-action 'self'",
+              "frame-ancestors 'none'",
+            ].join("; "),
+          },
         ],
       },
       {

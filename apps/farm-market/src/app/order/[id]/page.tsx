@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { getOrder } from "@/lib/db";
 import { money } from "@/lib/format";
 import type { PaymentMethod } from "@/lib/types";
+import { CopyButton } from "@/components/CopyButton";
+import { PrintButton } from "@/components/PrintButton";
 
 export const metadata: Metadata = {
   title: "Order Confirmation",
@@ -32,6 +34,10 @@ export default function OrderConfirmationPage({ params }: { params: { id: string
           Order #{order.id.slice(-6).toUpperCase()} — delivery to {order.address.city}, {order.address.state} in
           about {order.deliveryEtaDays} day{order.deliveryEtaDays === 1 ? "" : "s"} (~{order.deliveryMiles} mi from the farm).
         </p>
+        <div className="mt-2 flex items-center justify-center gap-4">
+          <CopyButton text={order.id.slice(-6).toUpperCase()} label="Copy order #" />
+          <PrintButton />
+        </div>
         {order.smsOptIn && (
           <p className="mt-1 text-sm text-ink-light/80 dark:text-ink-dark/80">
             A confirmation text is on its way to {order.phone}.

@@ -18,7 +18,7 @@ export function Header() {
   const count = lines.reduce((sum, l) => sum + l.qty, 0);
 
   return (
-    <header className="sticky top-0 z-40 border-b-2 border-line-light bg-canvas-light dark:border-line-dark dark:bg-canvas-dark">
+    <header className="print:hidden sticky top-0 z-40 border-b-2 border-line-light bg-canvas-light dark:border-line-dark dark:bg-canvas-dark">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
         <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
           <span aria-hidden>🐑</span>

@@ -8,6 +8,9 @@ import { ThemeInitScript } from "@/components/ThemeToggle";
 import { ChatWidget } from "@/components/ChatWidget";
 import { CookieConsent } from "@/components/CookieConsent";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
+import { ScrollProgress } from "@/components/ScrollProgress";
+import { BackToTop } from "@/components/BackToTop";
+import { UtmCapture } from "@/components/UtmCapture";
 import { FARM_NAME, FARM_TAGLINE, SITE_URL } from "@/lib/site";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -59,13 +62,22 @@ export default function RootLayout({
         <ThemeInitScript />
       </head>
       <body className="min-h-screen font-sans antialiased">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
+        >
+          Skip to content
+        </a>
+        <ScrollProgress />
         <CartProvider>
           <Header />
-          <main>{children}</main>
+          <main id="main-content">{children}</main>
           <Footer />
           <ChatWidget />
           <CookieConsent />
           <SiteAnalytics />
+          <BackToTop />
+          <UtmCapture />
         </CartProvider>
       </body>
     </html>

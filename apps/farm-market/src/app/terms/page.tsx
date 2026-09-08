@@ -1,4 +1,4 @@
-import { FARM_ADDRESS_LABEL, FARM_PHONE } from "@/lib/site";
+import { FARM_ADDRESS_LABEL, FARM_PHONE, LEGAL_LAST_UPDATED } from "@/lib/site";
 
 export const metadata = {
   title: "Terms of Service",
@@ -12,6 +12,9 @@ export default function TermsPage() {
       <h1 className="text-3xl font-bold tracking-tight">Terms of service</h1>
       <p className="mt-2 text-sm text-ink-light/80 dark:text-ink-dark/80">
         Demo storefront — this text is illustrative, not reviewed legal counsel.
+      </p>
+      <p className="mt-1 text-xs text-ink-light/70 dark:text-ink-dark/70">
+        Last updated: {LEGAL_LAST_UPDATED}
       </p>
 
       <div className="mt-8 space-y-6 text-sm text-ink-light/80 dark:text-ink-dark/80">

@@ -7,6 +7,8 @@ import { getProduct, CATALOG, CATEGORY_LABELS, CATEGORY_PAIRINGS } from "@/lib/p
 import type { Category } from "@/lib/types";
 import { money } from "@/lib/format";
 import { FreeDeliveryBar } from "@/components/FreeDeliveryBar";
+import { ConfirmModal } from "@/components/ConfirmModal";
+import { Spinner } from "@/components/Spinner";
 
 export default function CartPage() {
   const {
@@ -25,6 +27,7 @@ export default function CartPage() {
 
   const [textPhone, setTextPhone] = useState("");
   const [textStatus, setTextStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [removeIdx, setRemoveIdx] = useState<number | null>(null);
 
   const cartCategories = new Set(
     lines
@@ -121,7 +124,7 @@ export default function CartPage() {
                       </button>
                     </div>
                     <button
-                      onClick={() => removeLine(idx)}
+                      onClick={() => setRemoveIdx(idx)}
                       className="text-xs font-medium text-ink-light/80 underline hover:text-red-500 dark:text-ink-dark/80"
                     >
                       Remove
@@ -227,8 +230,9 @@ export default function CartPage() {
                   <button
                     onClick={sendCartText}
                     disabled={textStatus === "sending" || !textPhone}
-                    className="btn-secondary shrink-0 px-4"
+                    className="btn-secondary shrink-0 gap-1.5 px-4"
                   >
+                    {textStatus === "sending" && <Spinner />}
                     {textStatus === "sending" ? "Sending…" : "Text me"}
                   </button>
                 </div>
@@ -240,6 +244,23 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        open={removeIdx !== null}
+        title="Remove item?"
+        message={
+          removeIdx !== null && getProduct(lines[removeIdx]!.slug)
+            ? `Remove ${getProduct(lines[removeIdx]!.slug)!.name} from your cart?`
+            : "Remove this item from your cart?"
+        }
+        confirmLabel="Remove"
+        danger
+        onConfirm={() => {
+          if (removeIdx !== null) removeLine(removeIdx);
+          setRemoveIdx(null);
+        }}
+        onCancel={() => setRemoveIdx(null)}
+      />
     </div>
   );
 }

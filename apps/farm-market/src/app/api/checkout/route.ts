@@ -119,6 +119,7 @@ export async function POST(req: Request) {
     deliveryMiles: delivery.milesEstimate,
     status: "confirmed",
     createdAt: new Date().toISOString(),
+    utm: input.utm && Object.keys(input.utm).length > 0 ? input.utm : null,
   };
 
   const customer = await upsertCustomer({

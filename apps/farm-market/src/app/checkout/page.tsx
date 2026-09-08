@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useCart } from "@/store/cart-context";
 import { checkoutSchema, isLuhnValid } from "@/lib/validation";
 import { money } from "@/lib/format";
+import { getStoredUtm } from "@/lib/utm";
+import { Spinner } from "@/components/Spinner";
 
 interface DeliveryPreview {
   milesEstimate: number;
@@ -73,6 +75,7 @@ export default function CheckoutPage() {
         paymentMethod === "card_demo"
           ? { number: cardNumber, expiry: cardExpiry, cvc: cardCvc }
           : undefined,
+      utm: getStoredUtm(),
     };
 
     const parsed = checkoutSchema.safeParse(payload);
@@ -245,7 +248,8 @@ export default function CheckoutPage() {
             <p className="rounded-lg bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400">{serverError}</p>
           )}
 
-          <button type="submit" disabled={submitting} className="btn-primary w-full">
+          <button type="submit" disabled={submitting} className="btn-primary w-full gap-2">
+            {submitting && <Spinner />}
             {submitting ? "Placing order…" : `Place order — ${money(totals.total)}`}
           </button>
         </aside>

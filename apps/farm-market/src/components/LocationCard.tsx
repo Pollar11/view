@@ -6,6 +6,7 @@ import {
   FARM_PHONE_TEL,
   GOOGLE_MAPS_DIRECTIONS_URL,
 } from "@/lib/site";
+import { CopyButton } from "./CopyButton";
 
 export function LocationCard() {
   return (
@@ -26,9 +27,12 @@ export function LocationCard() {
         </p>
 
         <div className="mt-4 space-y-1 text-sm">
-          <a href={GOOGLE_MAPS_DIRECTIONS_URL} target="_blank" rel="noreferrer" className="block font-medium hover:underline">
-            {FARM_ADDRESS_LABEL}
-          </a>
+          <div className="flex items-center gap-2">
+            <a href={GOOGLE_MAPS_DIRECTIONS_URL} target="_blank" rel="noreferrer" className="font-medium hover:underline">
+              {FARM_ADDRESS_LABEL}
+            </a>
+            <CopyButton text={FARM_ADDRESS_LABEL} label="Copy" />
+          </div>
           <a href={`tel:${FARM_PHONE_TEL}`} className="block hover:underline">
             {FARM_PHONE}
           </a>
