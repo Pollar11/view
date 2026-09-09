@@ -4,8 +4,10 @@ import {
   ADMIN_COOKIE_MAX_AGE_SECONDS,
   ADMIN_COOKIE_NAME,
   createAdminToken,
+  createCsrfToken,
 } from "@/lib/admin-auth";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { readBoundedJson } from "@/lib/request-body";
 
 const DEFAULT_DEMO_PASSWORD = "farm2026";
 
@@ -28,16 +30,18 @@ export async function POST(req: Request) {
     );
   }
 
-  const body = await req.json().catch(() => null);
+  const body = (await readBoundedJson(req, 2 * 1024)) as { password?: unknown } | null;
   const password = typeof body?.password === "string" ? body.password : "";
   const expected = process.env.ADMIN_PASSWORD || DEFAULT_DEMO_PASSWORD;
 
   if (!timingSafeStringEqual(password, expected)) {
+    console.warn(`[security] failed admin login from ${clientIp(req)}`);
     return NextResponse.json({ error: "Incorrect password" }, { status: 401 });
   }
 
-  const res = NextResponse.json({ ok: true });
-  res.cookies.set(ADMIN_COOKIE_NAME, createAdminToken(), {
+  const token = createAdminToken();
+  const res = NextResponse.json({ ok: true, csrfToken: createCsrfToken(token) });
+  res.cookies.set(ADMIN_COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

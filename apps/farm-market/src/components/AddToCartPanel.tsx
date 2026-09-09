@@ -2,15 +2,18 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/store/cart-context";
 import { money } from "@/lib/format";
 
 export function AddToCartPanel({ product, stock }: { product: Product; stock: number }) {
+  const router = useRouter();
   const { addLine } = useCart();
   const [portionIdx, setPortionIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
 
   const portion = product.portionOptions?.[portionIdx];
   const weightLb =
@@ -37,6 +40,12 @@ export function AddToCartPanel({ product, stock }: { product: Product; stock: nu
     addLine({ slug: product.slug, unitLabel, weightLb, qty });
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2200);
+  }
+
+  function handleBuyNow() {
+    setBuyingNow(true);
+    addLine({ slug: product.slug, unitLabel, weightLb, qty });
+    router.push("/checkout");
   }
 
   return (
@@ -90,9 +99,14 @@ export function AddToCartPanel({ product, stock }: { product: Product; stock: nu
         <span className="text-xl font-bold">{money(lineTotal)}</span>
       </div>
 
-      <button onClick={handleAdd} disabled={soldOut} className="btn-primary w-full">
-        {soldOut ? "Sold out this week" : justAdded ? "Added ✓" : "Add to cart"}
-      </button>
+      <div className="flex gap-2.5">
+        <button onClick={handleAdd} disabled={soldOut} className="btn-secondary flex-1">
+          {soldOut ? "Sold out" : justAdded ? "Added ✓" : "Add to cart"}
+        </button>
+        <button onClick={handleBuyNow} disabled={soldOut || buyingNow} className="btn-primary flex-1">
+          {buyingNow ? "Taking you to checkout…" : "Buy now"}
+        </button>
+      </div>
 
       {justAdded && (
         <p className="mt-3 text-center text-sm">

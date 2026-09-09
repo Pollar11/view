@@ -33,15 +33,40 @@ export function verifyAdminToken(token: string | undefined | null): boolean {
 export const ADMIN_COOKIE_NAME = COOKIE_NAME;
 export const ADMIN_COOKIE_MAX_AGE_SECONDS = SESSION_TTL_MS / 1000;
 
-/** Reads the admin session cookie straight off an incoming Request — usable
- * inside Route Handlers without pulling in next/headers. */
-export function isAdminRequest(req: Request): boolean {
+/** Raw session-cookie token off an incoming Request, or null if absent. */
+export function getAdminToken(req: Request): string | null {
   const cookieHeader = req.headers.get("cookie") ?? "";
   const match = cookieHeader
     .split(";")
     .map((c) => c.trim())
     .find((c) => c.startsWith(`${COOKIE_NAME}=`));
-  if (!match) return false;
-  const token = decodeURIComponent(match.slice(COOKIE_NAME.length + 1));
-  return verifyAdminToken(token);
+  if (!match) return null;
+  return decodeURIComponent(match.slice(COOKIE_NAME.length + 1));
+}
+
+/** Reads the admin session cookie straight off an incoming Request — usable
+ * inside Route Handlers without pulling in next/headers. */
+export function isAdminRequest(req: Request): boolean {
+  return verifyAdminToken(getAdminToken(req));
+}
+
+/**
+ * CSRF token for state-changing admin actions (e.g. the win-back SMS
+ * blast), double-submit style: derived from the session cookie's own
+ * value via HMAC, handed to the client once (login response / session
+ * check), and required back as a header on the state-changing request.
+ * A cross-site page can make the browser attach the httpOnly session
+ * cookie automatically, but it can't read this token to forge the header.
+ */
+export function createCsrfToken(sessionToken: string): string {
+  return crypto.createHmac("sha256", secret()).update(`csrf:${sessionToken}`).digest("hex");
+}
+
+export function verifyCsrfToken(sessionToken: string | null, candidate: string | null): boolean {
+  if (!sessionToken || !candidate) return false;
+  const expected = createCsrfToken(sessionToken);
+  const candidateBuf = Buffer.from(candidate);
+  const expectedBuf = Buffer.from(expected);
+  if (candidateBuf.length !== expectedBuf.length) return false;
+  return crypto.timingSafeEqual(candidateBuf, expectedBuf);
 }

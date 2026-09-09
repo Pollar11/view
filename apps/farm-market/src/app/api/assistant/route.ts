@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAssistantReply } from "@/lib/assistant";
 import { rateLimit } from "@/lib/rate-limit";
+import { readBoundedJson } from "@/lib/request-body";
 
 const bodySchema = z.object({
   message: z.string().trim().min(1).max(500),
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const body = await req.json().catch(() => null);
+  const body = await readBoundedJson(req, 48 * 1024);
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Ask something under 500 characters." }, { status: 422 });

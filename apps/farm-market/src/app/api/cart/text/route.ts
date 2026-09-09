@@ -4,6 +4,7 @@ import { phoneSchema, cartLineSchema } from "@/lib/validation";
 import { computeTotals } from "@/lib/pricing";
 import { sendSms, cartReminderSms } from "@/lib/sms";
 import { rateLimit } from "@/lib/rate-limit";
+import { readBoundedJson } from "@/lib/request-body";
 
 const bodySchema = z.object({
   phone: phoneSchema,
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const body = await req.json().catch(() => null);
+  const body = await readBoundedJson(req);
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(

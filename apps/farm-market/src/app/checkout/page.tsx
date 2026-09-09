@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/store/cart-context";
@@ -8,6 +8,7 @@ import { checkoutSchema, isLuhnValid } from "@/lib/validation";
 import { money } from "@/lib/format";
 import { getStoredUtm } from "@/lib/utm";
 import { Spinner } from "@/components/Spinner";
+import { stateFromZip } from "@/lib/zip-state";
 
 interface DeliveryPreview {
   milesEstimate: number;
@@ -49,6 +50,19 @@ export default function CheckoutPage() {
       .then((data) => setDelivery(data))
       .catch(() => undefined);
     return () => controller.abort();
+  }, [zip]);
+
+  // Suggest a state from the ZIP once it's complete — fires only on a new
+  // ZIP (not on every keystroke in State), and never overwrites a state the
+  // customer already typed or is in the middle of clearing/retyping.
+  const suggestedForZip = useRef<string | null>(null);
+  useEffect(() => {
+    if (zip === suggestedForZip.current) return;
+    suggestedForZip.current = zip;
+    if (state.trim()) return;
+    const suggestion = stateFromZip(zip);
+    if (suggestion) setState(suggestion);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zip]);
 
   if (isHydrated && lines.length === 0) {

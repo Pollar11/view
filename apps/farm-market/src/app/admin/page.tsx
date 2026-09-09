@@ -9,6 +9,7 @@ interface OrdersResponse {
   orders: Order[];
   stats: { ordersLast24h: number; ordersLast7d: number; totalOrders: number; totalCustomers: number };
   smsLog: SmsLogEntry[];
+  csrfToken: string;
 }
 
 export default function AdminPage() {
@@ -77,7 +78,10 @@ export default function AdminPage() {
     setResults(null);
     const res = await fetch("/api/admin/win-back", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-csrf-token": data?.csrfToken ?? "",
+      },
       body: JSON.stringify({
         customerIds: Array.from(selected),
         percentOff,

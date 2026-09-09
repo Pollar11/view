@@ -14,6 +14,7 @@ import {
 } from "@/lib/db";
 import { sendSms, orderConfirmationSms } from "@/lib/sms";
 import { rateLimit } from "@/lib/rate-limit";
+import { readBoundedJson } from "@/lib/request-body";
 import type { Order } from "@/lib/types";
 
 export async function POST(req: Request) {
@@ -24,11 +25,9 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  const body = await readBoundedJson(req);
+  if (body === null) {
+    return NextResponse.json({ error: "Invalid or oversized request body" }, { status: 400 });
   }
 
   const parsed = checkoutSchema.safeParse(body);

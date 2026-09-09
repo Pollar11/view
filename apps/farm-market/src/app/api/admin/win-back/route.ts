@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { isAdminRequest } from "@/lib/admin-auth";
+import { getAdminToken, verifyAdminToken, verifyCsrfToken } from "@/lib/admin-auth";
 import { createCoupon, listCustomers } from "@/lib/db";
 import { sendSms, winBackSms } from "@/lib/sms";
+import { clientIp } from "@/lib/rate-limit";
+import { readBoundedJson } from "@/lib/request-body";
 
 const bodySchema = z.object({
   customerIds: z.array(z.string()).min(1),
@@ -18,11 +20,19 @@ const bodySchema = z.object({
  * contacted (opted-out customers are skipped even if selected).
  */
 export async function POST(req: Request) {
-  if (!isAdminRequest(req)) {
+  const token = getAdminToken(req);
+  if (!verifyAdminToken(token)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  // Cookie auth alone isn't enough for a state-changing action like this one
+  // (it sends real SMS) — a malicious page could make the browser attach the
+  // cookie automatically. Require the CSRF token issued alongside it too.
+  if (!verifyCsrfToken(token, req.headers.get("x-csrf-token"))) {
+    console.warn(`[security] rejected win-back request with missing/invalid CSRF token from ${clientIp(req)}`);
+    return NextResponse.json({ error: "Invalid request — please refresh and try again." }, { status: 403 });
+  }
 
-  const body = await req.json().catch(() => null);
+  const body = await readBoundedJson(req);
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(

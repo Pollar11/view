@@ -45,6 +45,7 @@ export function rateLimit(
     return true;
   }
   if (existing.count >= opts.limit) {
+    console.warn(`[security] rate limit hit: ${key}`);
     return false;
   }
   existing.count += 1;

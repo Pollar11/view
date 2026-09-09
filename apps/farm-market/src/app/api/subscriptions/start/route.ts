@@ -7,6 +7,7 @@ import type { Category } from "@/lib/types";
 import { createSubscriptionLead } from "@/lib/db";
 import { sendSms, subscriptionLeadSms } from "@/lib/sms";
 import { rateLimit } from "@/lib/rate-limit";
+import { readBoundedJson } from "@/lib/request-body";
 
 const bodySchema = z.object({
   category: z.string(),
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const body = await req.json().catch(() => null);
+  const body = await readBoundedJson(req);
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(

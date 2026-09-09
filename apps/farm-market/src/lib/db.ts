@@ -4,7 +4,17 @@ import crypto from "node:crypto";
 import { CATALOG } from "./products";
 import type { Coupon, Customer, Order, SmsLogEntry, SubscriptionLead } from "./types";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+/**
+ * Vercel (and most serverless hosts) ship a read-only deployment bundle —
+ * only /tmp is writable, and even that doesn't survive a cold start. We
+ * still write there so a warm instance's admin dashboard reflects recent
+ * orders, but the real source of truth for a running instance is the
+ * in-memory `global.__farmMarketStore` below; a failed write must never
+ * fail the request (see persist()).
+ */
+const DATA_DIR = process.env.VERCEL
+  ? path.join("/tmp", "farm-market-data")
+  : path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "store.json");
 
 interface StoreShape {
@@ -65,8 +75,15 @@ function persist(): Promise<void> {
   const next = prev
     .catch(() => undefined)
     .then(async () => {
-      await fs.promises.mkdir(DATA_DIR, { recursive: true });
-      await fs.promises.writeFile(DATA_FILE, snapshot, "utf-8");
+      try {
+        await fs.promises.mkdir(DATA_DIR, { recursive: true });
+        await fs.promises.writeFile(DATA_FILE, snapshot, "utf-8");
+      } catch (err) {
+        // The in-memory store (already updated by the caller before persist()
+        // runs) stays authoritative for this instance's lifetime — a disk
+        // write failure must never fail the order/checkout/etc. request.
+        console.error("[db] failed to persist store snapshot:", err);
+      }
     });
   global.__farmMarketWriteChain = next;
   return next;
