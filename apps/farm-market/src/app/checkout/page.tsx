@@ -175,6 +175,18 @@ export default function CheckoutPage() {
         return;
       }
       clear();
+      // Vercel's serverless functions don't share memory between
+      // invocations, so the confirmation page's own request can land on a
+      // different instance that never saw this order. Stash it here so the
+      // confirmation page can render instantly from what we already have,
+      // falling back to the API (which reads from disk-backed storage) if
+      // it's missing — e.g. a reload or a shared link.
+      try {
+        sessionStorage.setItem(`order:${data.order.id}`, JSON.stringify(data.order));
+      } catch {
+        // sessionStorage can throw in private-browsing/storage-restricted
+        // contexts — the API fallback on the confirmation page still works.
+      }
       router.push(`/order/${data.order.id}`);
     } catch {
       setServerError("Network error — please try again.");
