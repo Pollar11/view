@@ -22,6 +22,7 @@ export default function SubscribePage() {
   const [phone, setPhone] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [website, setWebsite] = useState(""); // honeypot — real users never see or fill this
 
   const plan = SUBSCRIPTION_PLANS.find((p) => p.category === selected)!;
 
@@ -46,7 +47,7 @@ export default function SubscribePage() {
       const res = await fetch("/api/subscriptions/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category: selected, zip, name, phone }),
+        body: JSON.stringify({ category: selected, zip, name, phone, website }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -96,6 +97,17 @@ export default function SubscribePage() {
                 Try 92801 (Anaheim, CA) or your own ZIP.
               </p>
             </div>
+            <input
+              type="text"
+              name="website"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className="absolute h-0 w-0 opacity-0"
+              style={{ left: "-9999px" }}
+            />
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <span className="label">Your name</span>

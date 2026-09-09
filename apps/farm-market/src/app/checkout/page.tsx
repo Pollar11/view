@@ -185,29 +185,41 @@ export default function CheckoutPage() {
           <section className="card space-y-4 p-5">
             <h2 className="font-semibold">Payment</h2>
             <div className="flex flex-col gap-2">
-              <label className="flex items-center gap-2.5 rounded-lg border border-line-light p-3 text-sm dark:border-line-dark">
-                <input type="radio" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} />
-                Pay on delivery (cash or card with the driver)
-              </label>
-              <label className="flex items-center gap-2.5 rounded-lg border border-line-light p-3 text-sm dark:border-line-dark">
-                <input type="radio" checked={paymentMethod === "card_demo"} onChange={() => setPaymentMethod("card_demo")} />
-                Pay now — demo card (no real charge)
-              </label>
-              <label className="flex items-center gap-2.5 rounded-lg border border-line-light p-3 text-sm dark:border-line-dark">
-                <input type="radio" checked={paymentMethod === "apple_pay_demo"} onChange={() => setPaymentMethod("apple_pay_demo")} />
-                 Apple Pay (demo — no real charge)
-              </label>
-              <label className="flex items-center gap-2.5 rounded-lg border border-line-light p-3 text-sm dark:border-line-dark">
-                <input type="radio" checked={paymentMethod === "paypal_demo"} onChange={() => setPaymentMethod("paypal_demo")} />
-                PayPal (demo — no real charge)
-              </label>
+              <PaymentOption
+                label="Pay on delivery"
+                sublabel="Cash or card with the driver"
+                badge="real"
+                selected={paymentMethod === "cod"}
+                onSelect={() => setPaymentMethod("cod")}
+              />
+              <PaymentOption
+                label="Card"
+                sublabel="Pay now online"
+                badge="demo"
+                selected={paymentMethod === "card_demo"}
+                onSelect={() => setPaymentMethod("card_demo")}
+              />
+              <PaymentOption
+                label="Apple Pay"
+                sublabel="Pay now online"
+                badge="demo"
+                selected={paymentMethod === "apple_pay_demo"}
+                onSelect={() => setPaymentMethod("apple_pay_demo")}
+              />
+              <PaymentOption
+                label="PayPal"
+                sublabel="Pay now online"
+                badge="demo"
+                selected={paymentMethod === "paypal_demo"}
+                onSelect={() => setPaymentMethod("paypal_demo")}
+              />
             </div>
 
-            {(paymentMethod === "apple_pay_demo" || paymentMethod === "paypal_demo") && (
-              <p className="text-xs text-ink-light/80 dark:text-ink-dark/80">
-                Demo mode: {paymentMethod === "apple_pay_demo" ? "Apple Pay" : "PayPal"} isn&apos;t
-                actually wired to a processor in this build — placing the order confirms it without
-                a real charge.
+            {paymentMethod !== "cod" && (
+              <p className="rounded-lg bg-black/5 p-3 text-xs text-ink-light/80 dark:bg-white/5 dark:text-ink-dark/80">
+                <strong>Demo mode:</strong> this option isn&apos;t wired to a real payment
+                processor in this build — placing the order confirms it without an actual charge.
+                Only &quot;Pay on delivery&quot; is a real, working payment method here.
               </p>
             )}
 
@@ -269,6 +281,45 @@ export default function CheckoutPage() {
         </aside>
       </form>
     </div>
+  );
+}
+
+function PaymentOption({
+  label,
+  sublabel,
+  badge,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  sublabel: string;
+  badge: "real" | "demo";
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <label
+      className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition ${
+        selected
+          ? "border-accent bg-accent/5 dark:border-accent-light dark:bg-accent-light/10"
+          : "border-line-light hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/5"
+      }`}
+    >
+      <input type="radio" checked={selected} onChange={onSelect} className="shrink-0" />
+      <span className="flex-1">
+        <span className="font-medium">{label}</span>
+        <span className="ml-2 text-xs text-ink-light/70 dark:text-ink-dark/70">{sublabel}</span>
+      </span>
+      <span
+        className={`pill shrink-0 text-[10px] ${
+          badge === "real"
+            ? "bg-accent/10 text-accent dark:text-accent-light"
+            : "bg-black/5 text-ink-light/70 dark:bg-white/10 dark:text-ink-dark/70"
+        }`}
+      >
+        {badge === "real" ? "Real" : "Demo"}
+      </span>
+    </label>
   );
 }
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { phoneSchema, cartLineSchema } from "@/lib/validation";
+import { phoneSchema, cartLineSchema, honeypotSchema, isHoneypotTripped } from "@/lib/validation";
 import { computeTotals } from "@/lib/pricing";
 import { sendSms, cartReminderSms } from "@/lib/sms";
 import { rateLimit } from "@/lib/rate-limit";
@@ -9,6 +9,7 @@ import { readBoundedJson } from "@/lib/request-body";
 const bodySchema = z.object({
   phone: phoneSchema,
   items: z.array(cartLineSchema).min(1),
+  website: honeypotSchema,
 });
 
 /**
@@ -32,6 +33,10 @@ export async function POST(req: Request) {
       { error: "Enter a valid phone number first." },
       { status: 422 },
     );
+  }
+
+  if (isHoneypotTripped(parsed.data.website)) {
+    return NextResponse.json({ ok: true });
   }
 
   const totals = computeTotals(parsed.data.items);

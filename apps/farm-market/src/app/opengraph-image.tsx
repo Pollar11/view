@@ -24,7 +24,7 @@ export default function OpengraphImage() {
         <div style={{ fontSize: 30, marginTop: 24, color: "#5b5147", maxWidth: 900 }}>
           {FARM_TAGLINE}
         </div>
-        <div style={{ fontSize: 24, marginTop: 40, color: "#9a3412", fontWeight: 600 }}>
+        <div style={{ fontSize: 24, marginTop: 40, color: "#1e3a5f", fontWeight: 600 }}>
           845 Kennedy St, Oakland, CA
         </div>
       </div>

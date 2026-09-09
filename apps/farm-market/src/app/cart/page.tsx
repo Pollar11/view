@@ -28,6 +28,7 @@ export default function CartPage() {
   const [textPhone, setTextPhone] = useState("");
   const [textStatus, setTextStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [removeIdx, setRemoveIdx] = useState<number | null>(null);
+  const [website, setWebsite] = useState(""); // honeypot — real users never see or fill this
 
   const cartCategories = new Set(
     lines
@@ -45,7 +46,7 @@ export default function CartPage() {
       const res = await fetch("/api/cart/text", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: textPhone, items: lines }),
+        body: JSON.stringify({ phone: textPhone, items: lines, website }),
       });
       setTextStatus(res.ok ? "sent" : "error");
     } catch {
@@ -220,6 +221,17 @@ export default function CartPage() {
                 <p className="mb-2 text-xs text-ink-light/85 dark:text-ink-dark/85">
                   Text yourself a reminder of what&apos;s in your cart right now (one message, sent only when you tap this).
                 </p>
+                <input
+                  type="text"
+                  name="website"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="absolute h-0 w-0 opacity-0"
+                  style={{ left: "-9999px" }}
+                />
                 <div className="flex gap-2">
                   <input
                     className="input"

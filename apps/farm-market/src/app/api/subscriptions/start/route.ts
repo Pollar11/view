@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { phoneSchema } from "@/lib/validation";
+import { phoneSchema, honeypotSchema, isHoneypotTripped } from "@/lib/validation";
 import { quoteSubscription } from "@/lib/subscriptions";
 import { CATEGORY_LABELS } from "@/lib/products";
 import type { Category } from "@/lib/types";
@@ -14,6 +14,7 @@ const bodySchema = z.object({
   zip: z.string().regex(/^\d{5}(-\d{4})?$/),
   name: z.string().trim().min(2).max(80),
   phone: phoneSchema,
+  website: honeypotSchema,
 });
 
 /**
@@ -37,6 +38,10 @@ export async function POST(req: Request) {
       { error: "Check your name, phone, and ZIP and try again." },
       { status: 422 },
     );
+  }
+
+  if (isHoneypotTripped(parsed.data.website)) {
+    return NextResponse.json({ ok: true });
   }
 
   const category = parsed.data.category as Category;

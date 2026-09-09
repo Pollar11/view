@@ -33,9 +33,9 @@ const config: Config = {
           dark: "#f3ead9",
         },
         accent: {
-          DEFAULT: "#9a3412",
-          light: "#c2410c",
-          dark: "#fb923c",
+          DEFAULT: "#1e3a5f",
+          light: "#2f6690",
+          dark: "#7fb7e8",
         },
         moss: {
           DEFAULT: "#4b5320",

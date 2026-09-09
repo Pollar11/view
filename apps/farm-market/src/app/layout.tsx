@@ -38,6 +38,12 @@ export const metadata: Metadata = {
     title: `${FARM_NAME} — Farm-to-Door Meat & Eggs`,
     description: FARM_TAGLINE,
   },
+  // Set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION once you add this property in
+  // Google Search Console — it'll hand you this exact code. Harmless/absent
+  // until then; no tag renders with no value.
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 export const viewport: Viewport = {

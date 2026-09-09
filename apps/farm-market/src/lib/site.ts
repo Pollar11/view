@@ -24,6 +24,18 @@ export const FARM_ADDRESS_LABEL = `${FARM_ADDRESS.street}, ${FARM_ADDRESS.city},
 export const FARM_PHONE = "(510) 535-1111";
 export const FARM_PHONE_TEL = "+15105351111";
 
+/** Demo contact address — swap for a real monitored inbox before launch. */
+export const FARM_EMAIL = "hello@meadowandmarket.com";
+
+/** Demo social links — point at the platform's home page as an honest
+ * placeholder (no real account exists yet). Swap for real profile URLs
+ * once they're created. */
+export const SOCIAL_LINKS = [
+  { name: "Instagram", url: "https://instagram.com", icon: "instagram" as const },
+  { name: "Facebook", url: "https://facebook.com", icon: "facebook" as const },
+  { name: "X", url: "https://x.com", icon: "x" as const },
+];
+
 export const FARM_HOURS = [
   { day: "Mon–Fri", hours: "8:00 AM – 6:00 PM" },
   { day: "Saturday", hours: "9:00 AM – 4:00 PM" },

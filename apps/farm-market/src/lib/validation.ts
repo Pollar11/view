@@ -28,6 +28,18 @@ export const addressSchema = z.object({
   notes: z.string().trim().max(300).optional(),
 });
 
+/**
+ * Honeypot field: rendered visually hidden in the real form, so a human
+ * never fills it in, but a simple bot that auto-fills every input will.
+ * Callers check `isHoneypotTripped()` and, if true, return a normal-looking
+ * success without actually sending anything — that avoids tipping the bot
+ * off (an error response just teaches it to skip that field next time).
+ */
+export const honeypotSchema = z.string().optional().default("");
+export function isHoneypotTripped(value: string | undefined): boolean {
+  return Boolean(value && value.length > 0);
+}
+
 export const cartLineSchema = z.object({
   slug: z.string().min(1),
   unitLabel: z.string().min(1),
