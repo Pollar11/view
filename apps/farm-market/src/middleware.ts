@@ -1,4 +1,28 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { clientIp } from "@/lib/rate-limit";
+
+/**
+ * Optional extra layer in front of /admin: if ADMIN_IP_ALLOWLIST is set
+ * (comma-separated IPs), only those IPs can reach /admin or /api/admin/* at
+ * all — everyone else gets a flat 403 before the request reaches any admin
+ * code, on top of (not instead of) the real login/session check those
+ * routes already enforce. Unset by default so a dynamic home IP can't lock
+ * the owner out without opting in first.
+ */
+function isAdminPath(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/api/admin/");
+}
+
+function isAllowedAdminIp(req: NextRequest): boolean {
+  const raw = process.env.ADMIN_IP_ALLOWLIST;
+  if (!raw) return true;
+  const allowed = raw
+    .split(",")
+    .map((ip) => ip.trim())
+    .filter(Boolean);
+  if (allowed.length === 0) return true;
+  return allowed.includes(clientIp(req));
+}
 
 /**
  * Forces HTTPS in production. Most hosts (Vercel included) already redirect
@@ -13,6 +37,12 @@ export function middleware(req: NextRequest) {
     httpsUrl.protocol = "https:";
     return NextResponse.redirect(httpsUrl, 308);
   }
+
+  if (isAdminPath(req.nextUrl.pathname) && !isAllowedAdminIp(req)) {
+    console.warn(`[security] blocked /admin request from disallowed IP: ${clientIp(req)}`);
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
   return NextResponse.next();
 }
 

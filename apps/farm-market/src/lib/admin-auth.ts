@@ -3,8 +3,26 @@ import crypto from "node:crypto";
 const COOKIE_NAME = "farm_admin_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
 
+/**
+ * Admin is fail-closed in production: without a real ADMIN_PASSWORD and
+ * ADMIN_SESSION_SECRET set, every admin login and every session check
+ * refuses outright rather than falling back to a value baked into the
+ * source (which anyone with read access to this repo — or a leaked
+ * checkout of it — would know). Dev mode keeps a friendly fallback so
+ * `npm run dev` works with no setup.
+ */
+export function isAdminConfigured(): boolean {
+  if (process.env.NODE_ENV !== "production") return true;
+  return Boolean(process.env.ADMIN_PASSWORD) && Boolean(process.env.ADMIN_SESSION_SECRET);
+}
+
 function secret(): string {
-  return process.env.ADMIN_SESSION_SECRET || "dev-only-insecure-secret";
+  const s = process.env.ADMIN_SESSION_SECRET;
+  if (s) return s;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_SESSION_SECRET is not set");
+  }
+  return "dev-only-insecure-secret";
 }
 
 function sign(payload: string): string {
@@ -12,6 +30,9 @@ function sign(payload: string): string {
 }
 
 export function createAdminToken(): string {
+  if (!isAdminConfigured()) {
+    throw new Error("Admin is not configured (ADMIN_PASSWORD/ADMIN_SESSION_SECRET unset)");
+  }
   const expires = Date.now() + SESSION_TTL_MS;
   const payload = `${expires}`;
   return `${payload}.${sign(payload)}`;
@@ -19,15 +40,20 @@ export function createAdminToken(): string {
 
 export function verifyAdminToken(token: string | undefined | null): boolean {
   if (!token) return false;
-  const [payload, sig] = token.split(".");
-  if (!payload || !sig) return false;
-  const expected = sign(payload);
-  const sigBuf = Buffer.from(sig);
-  const expectedBuf = Buffer.from(expected);
-  if (sigBuf.length !== expectedBuf.length) return false;
-  if (!crypto.timingSafeEqual(sigBuf, expectedBuf)) return false;
-  const expires = parseInt(payload, 10);
-  return Number.isFinite(expires) && expires > Date.now();
+  if (!isAdminConfigured()) return false;
+  try {
+    const [payload, sig] = token.split(".");
+    if (!payload || !sig) return false;
+    const expected = sign(payload);
+    const sigBuf = Buffer.from(sig);
+    const expectedBuf = Buffer.from(expected);
+    if (sigBuf.length !== expectedBuf.length) return false;
+    if (!crypto.timingSafeEqual(sigBuf, expectedBuf)) return false;
+    const expires = parseInt(payload, 10);
+    return Number.isFinite(expires) && expires > Date.now();
+  } catch {
+    return false;
+  }
 }
 
 export const ADMIN_COOKIE_NAME = COOKIE_NAME;

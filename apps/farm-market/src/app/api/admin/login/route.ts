@@ -5,6 +5,7 @@ import {
   ADMIN_COOKIE_NAME,
   createAdminToken,
   createCsrfToken,
+  isAdminConfigured,
 } from "@/lib/admin-auth";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { readBoundedJson } from "@/lib/request-body";
@@ -27,6 +28,16 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: "Too many attempts — please wait a few minutes." },
       { status: 429 },
+    );
+  }
+
+  if (!isAdminConfigured()) {
+    console.error(
+      "[security] admin login blocked — set ADMIN_PASSWORD and ADMIN_SESSION_SECRET in this deployment's environment variables",
+    );
+    return NextResponse.json(
+      { error: "Admin access isn't configured on this deployment yet." },
+      { status: 503 },
     );
   }
 
