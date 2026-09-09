@@ -114,6 +114,10 @@ export async function POST(req: Request) {
     phone: input.phone,
     smsOptIn: input.smsOptIn,
     paymentMethod: input.paymentMethod,
+    cardLast4:
+      input.paymentMethod === "card_demo" && input.card
+        ? input.card.number.replace(/\D/g, "").slice(-4)
+        : null,
     deliveryEtaDays: delivery.etaDays,
     deliveryMiles: delivery.milesEstimate,
     status: "confirmed",

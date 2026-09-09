@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { MEMBERSHIP_TIERS } from "@/lib/membership";
-import { money } from "@/lib/format";
+import { formatPhoneInput, money } from "@/lib/format";
 
 export default function MembershipPage() {
   const [phone, setPhone] = useState("");
@@ -60,9 +60,9 @@ export default function MembershipPage() {
         <div className="mt-3 flex gap-2">
           <input
             className="input"
-            placeholder="(555) 123-4567"
+            placeholder="555-123-4567"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => setPhone(formatPhoneInput(e.target.value))}
           />
           <button onClick={checkStatus} disabled={status === "loading"} className="btn-secondary shrink-0 px-4">
             {status === "loading" ? "Checking…" : "Check"}

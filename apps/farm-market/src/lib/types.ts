@@ -91,6 +91,9 @@ export interface Order {
   phone: string;
   smsOptIn: boolean;
   paymentMethod: PaymentMethod;
+  /** Last 4 digits only, for a card_demo order — never the full number,
+   * expiry, or CVC, none of which are ever persisted. */
+  cardLast4: string | null;
   deliveryEtaDays: number;
   deliveryMiles: number;
   status: "confirmed";

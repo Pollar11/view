@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { money } from "@/lib/format";
+import { FARM_NAME } from "@/lib/site";
 import type { Order, PaymentMethod } from "@/lib/types";
 import { CopyButton } from "@/components/CopyButton";
 import { PrintButton } from "@/components/PrintButton";
@@ -14,6 +15,13 @@ const PAYMENT_LABELS: Record<PaymentMethod, string> = {
   apple_pay_demo: "Apple Pay (demo — no real charge)",
   paypal_demo: "PayPal (demo — no real charge)",
 };
+
+function paymentDetailLine(order: Order): string {
+  const label = PAYMENT_LABELS[order.paymentMethod];
+  return order.paymentMethod === "card_demo" && order.cardLast4
+    ? `${label} ending in ${order.cardLast4}`
+    : label;
+}
 
 type LoadState = { status: "loading" } | { status: "found"; order: Order } | { status: "not-found" };
 
@@ -104,6 +112,20 @@ export function OrderConfirmationClient({ id }: { id: string }) {
       </div>
 
       <div className="card mt-10 space-y-2.5 p-6 text-sm">
+        <div className="flex items-start justify-between border-b border-line-light pb-3 dark:border-line-dark">
+          <div className="flex items-center gap-2 text-base font-bold tracking-tight">
+            <span aria-hidden>🐑</span> {FARM_NAME}
+          </div>
+          <div className="text-right text-xs text-ink-light/75 dark:text-ink-dark/75">
+            <div>Order #{order.id.slice(-6).toUpperCase()}</div>
+            <div>{new Date(order.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</div>
+          </div>
+        </div>
+        <div className="flex justify-between text-xs text-ink-light/75 dark:text-ink-dark/75">
+          <span>Order type</span>
+          <span className="font-medium text-ink-light dark:text-ink-dark">Home delivery</span>
+        </div>
+
         {order.items.map((item) => (
           <div key={item.slug} className="flex justify-between text-ink-light/70 dark:text-ink-dark/70">
             <span>{item.qty}× {item.name} ({item.unitLabel})</span>
@@ -125,9 +147,10 @@ export function OrderConfirmationClient({ id }: { id: string }) {
           <div className="flex justify-between"><span>Delivery</span><span>{order.deliveryFee === 0 ? "Free" : money(order.deliveryFee)}</span></div>
           <div className="flex justify-between pt-1 text-base font-bold"><span>Total</span><span>{money(order.total)}</span></div>
         </div>
-        <p className="border-t border-line-light pt-2.5 text-xs text-ink-light/80 dark:border-line-dark dark:text-ink-dark/80">
-          Payment: {PAYMENT_LABELS[order.paymentMethod]}
-        </p>
+        <div className="border-t border-line-light pt-2.5 text-xs text-ink-light/80 dark:border-line-dark dark:text-ink-dark/80">
+          <p>Payment: {paymentDetailLine(order)}</p>
+          <p className="mt-0.5">Delivering to: {order.address.fullName}, {order.address.street}, {order.address.city}, {order.address.state} {order.address.zip}</p>
+        </div>
       </div>
 
       <div className="mt-8 text-center">

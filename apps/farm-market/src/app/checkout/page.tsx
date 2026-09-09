@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/store/cart-context";
 import { checkoutSchema, isLuhnValid } from "@/lib/validation";
-import { formatPhoneInput, money } from "@/lib/format";
+import { formatCardExpiry, formatCardNumber, formatPhoneInput, money } from "@/lib/format";
 import { getStoredUtm } from "@/lib/utm";
 import { Spinner } from "@/components/Spinner";
 import { stateFromZip } from "@/lib/zip-state";
@@ -28,6 +28,12 @@ interface AddressSuggestion {
   state: string;
   zip: string;
 }
+
+/** A well-known Luhn-valid test number (the same one Stripe and most
+ * processors use for test mode) — never a real card, and this build never
+ * contacts a real payment processor either way. Any future expiry passes
+ * the demo's own validation. */
+const DEMO_CARD = { number: "4242 4242 4242 4242", expiry: "12/29", cvc: "123" };
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -129,6 +135,12 @@ export default function CheckoutPage() {
       controller.abort();
     };
   }, [street]);
+
+  function fillDemoCard() {
+    setCardNumber(DEMO_CARD.number);
+    setCardExpiry(DEMO_CARD.expiry);
+    setCardCvc(DEMO_CARD.cvc);
+  }
 
   function selectAddressSuggestion(s: AddressSuggestion) {
     justSelectedSuggestion.current = true;
@@ -360,15 +372,42 @@ export default function CheckoutPage() {
 
             {paymentMethod === "card_demo" && (
               <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between gap-3 rounded-lg bg-black/5 p-3 text-xs dark:bg-white/5">
+                  <span className="text-ink-light/80 dark:text-ink-dark/80">
+                    No real card? Use the demo test number: <strong>{DEMO_CARD.number}</strong>,{" "}
+                    exp <strong>{DEMO_CARD.expiry}</strong>, CVC <strong>{DEMO_CARD.cvc}</strong>.
+                  </span>
+                  <button type="button" onClick={fillDemoCard} className="btn-secondary shrink-0 px-3 py-1.5 text-xs">
+                    Fill demo card
+                  </button>
+                </div>
                 <Field label="Card number" error={errors["card.number"]}>
-                  <input className="input" placeholder="4242 4242 4242 4242" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+                  <input
+                    className="input"
+                    inputMode="numeric"
+                    placeholder="4242 4242 4242 4242"
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                  />
                 </Field>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Expiry">
-                    <input className="input" placeholder="MM/YY" value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)} />
+                    <input
+                      className="input"
+                      inputMode="numeric"
+                      placeholder="MM/YY"
+                      value={cardExpiry}
+                      onChange={(e) => setCardExpiry(formatCardExpiry(e.target.value))}
+                    />
                   </Field>
                   <Field label="CVC">
-                    <input className="input" placeholder="123" value={cardCvc} onChange={(e) => setCardCvc(e.target.value)} />
+                    <input
+                      className="input"
+                      inputMode="numeric"
+                      placeholder="123"
+                      value={cardCvc}
+                      onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                    />
                   </Field>
                 </div>
                 <p className="text-xs text-ink-light/80 dark:text-ink-dark/80">
