@@ -92,7 +92,13 @@ export default function SubscribePage() {
           <form onSubmit={startSubscription} className="card mt-6 space-y-4 p-5">
             <div>
               <span className="label">Delivery ZIP</span>
-              <input className="input" value={zip} onChange={(e) => setZip(e.target.value)} maxLength={5} />
+              <input
+                className="input"
+                inputMode="numeric"
+                value={zip}
+                onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                maxLength={5}
+              />
               <p className="mt-1 text-xs text-ink-light/80 dark:text-ink-dark/80">
                 Try 92801 (Anaheim, CA) or your own ZIP.
               </p>

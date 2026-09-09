@@ -84,7 +84,6 @@ export function Footer() {
               <li><Link href="/deals" className="hover:underline">Deals</Link></li>
               <li><Link href="/membership" className="hover:underline">Membership</Link></li>
               <li><Link href="/subscribe" className="hover:underline">Monthly subscriptions</Link></li>
-              <li><Link href="/admin" className="hover:underline">Farm dashboard</Link></li>
             </ul>
           </div>
 
@@ -92,6 +91,7 @@ export function Footer() {
             <div className="font-semibold">Support</div>
             <ul className="mt-2 space-y-1.5 text-ink-light/85 dark:text-ink-dark/85">
               <li><Link href="/faq" className="hover:underline">FAQ</Link></li>
+              <li><Link href="/track" className="hover:underline">Track your order</Link></li>
               <li><Link href="/terms" className="hover:underline">Terms of service</Link></li>
               <li><Link href="/privacy" className="hover:underline">Privacy policy</Link></li>
               <li><Link href="/accessibility" className="hover:underline">Accessibility</Link></li>

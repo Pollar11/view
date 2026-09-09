@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/store/cart-context";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -14,9 +15,27 @@ const NAV_LINKS = [
 ];
 
 export function Header() {
+  const router = useRouter();
   const { lines, isHydrated } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const count = lines.reduce((sum, l) => sum + l.qty, 0);
+
+  function openSearch() {
+    setSearchOpen(true);
+    requestAnimationFrame(() => searchInputRef.current?.focus());
+  }
+
+  function submitSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    router.push(`/shop?q=${encodeURIComponent(q)}`);
+    setSearchOpen(false);
+    setSearchQuery("");
+  }
 
   return (
     <header className="print:hidden sticky top-0 z-40 border-b-2 border-line-light bg-canvas-light dark:border-line-dark dark:bg-canvas-dark">
@@ -35,6 +54,13 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={openSearch}
+            aria-label="Search products and orders"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-line-light transition hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/10"
+          >
+            <SearchIcon />
+          </button>
           <ThemeToggle />
           <Link
             href="/cart"
@@ -59,10 +85,31 @@ export function Header() {
         </div>
       </div>
 
+      {searchOpen && (
+        <div className="border-t border-line-light px-5 py-3 dark:border-line-dark">
+          <form onSubmit={submitSearch} className="mx-auto flex max-w-6xl gap-2">
+            <input
+              ref={searchInputRef}
+              className="input"
+              placeholder="Search products (e.g. lamb chops, eggs)…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Escape" && setSearchOpen(false)}
+            />
+            <button type="submit" className="btn-secondary shrink-0 px-4">
+              Search
+            </button>
+          </form>
+          <p className="mx-auto mt-1.5 max-w-6xl text-xs text-ink-light/70 dark:text-ink-dark/70">
+            Looking for an existing order instead? <Link href="/track" onClick={() => setSearchOpen(false)} className="underline">Track your order</Link>.
+          </p>
+        </div>
+      )}
+
       {menuOpen && (
         <nav className="border-t border-line-light px-5 py-3 text-sm font-medium dark:border-line-dark md:hidden">
           <ul className="flex flex-col gap-1">
-            {[...NAV_LINKS, { href: "/admin", label: "Farm dashboard" }].map((link) => (
+            {NAV_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
@@ -77,6 +124,15 @@ export function Header() {
         </nav>
       )}
     </header>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+    </svg>
   );
 }
 

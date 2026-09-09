@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { money } from "@/lib/format";
 import { FARM_NAME } from "@/lib/site";
+import { computeOrderStage, STAGE_LABELS } from "@/lib/order-status";
 import type { Order, PaymentMethod } from "@/lib/types";
 import { CopyButton } from "@/components/CopyButton";
 import { PrintButton } from "@/components/PrintButton";
@@ -88,6 +89,7 @@ export function OrderConfirmationClient({ id }: { id: string }) {
   }
 
   const order = state.order;
+  const stage = computeOrderStage(order);
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-16">
@@ -111,7 +113,40 @@ export function OrderConfirmationClient({ id }: { id: string }) {
         )}
       </div>
 
-      <div className="card mt-10 space-y-2.5 p-6 text-sm">
+      <div className="card mt-8 p-6">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">{stage.label}</h2>
+          <span className="text-xs text-ink-light/70 dark:text-ink-dark/70">{stage.estimatedDeliveryLabel}</span>
+        </div>
+        <ol className="mt-4 flex items-center gap-1">
+          {STAGE_LABELS.map((label, i) => (
+            <li key={label} className="flex flex-1 items-center gap-1 last:flex-none">
+              <div
+                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                  i <= stage.index
+                    ? "bg-accent text-white"
+                    : "bg-black/10 text-ink-light/50 dark:bg-white/10 dark:text-ink-dark/50"
+                }`}
+                title={label}
+              >
+                {i < stage.index ? "✓" : i + 1}
+              </div>
+              {i < STAGE_LABELS.length - 1 && (
+                <div
+                  className={`h-0.5 flex-1 ${i < stage.index ? "bg-accent" : "bg-black/10 dark:bg-white/10"}`}
+                  aria-hidden
+                />
+              )}
+            </li>
+          ))}
+        </ol>
+        <p className="mt-3 text-xs text-ink-light/70 dark:text-ink-dark/70">
+          This tracker updates based on time since your order was placed — there&apos;s
+          no live GPS feed behind it, so treat the stage as an estimate.
+        </p>
+      </div>
+
+      <div className="card mt-6 space-y-2.5 p-6 text-sm">
         <div className="flex items-start justify-between border-b border-line-light pb-3 dark:border-line-dark">
           <div className="flex items-center gap-2 text-base font-bold tracking-tight">
             <span aria-hidden>🐑</span> {FARM_NAME}

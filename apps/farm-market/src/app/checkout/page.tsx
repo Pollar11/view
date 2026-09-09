@@ -292,10 +292,21 @@ export default function CheckoutPage() {
                 <input className="input" value={city} onChange={(e) => setCity(e.target.value)} />
               </Field>
               <Field label="State" error={errors["address.state"]}>
-                <input className="input" maxLength={2} value={state} onChange={(e) => setState(e.target.value.toUpperCase())} />
+                <input
+                  className="input"
+                  maxLength={2}
+                  value={state}
+                  onChange={(e) => setState(e.target.value.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 2))}
+                />
               </Field>
               <Field label="ZIP" error={errors["address.zip"]}>
-                <input className="input" value={zip} onChange={(e) => setZip(e.target.value)} />
+                <input
+                  className="input"
+                  inputMode="numeric"
+                  maxLength={5}
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                />
               </Field>
             </div>
 
