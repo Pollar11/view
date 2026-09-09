@@ -13,6 +13,7 @@ import {
   loadReturningCustomer,
   saveReturningCustomer,
   type PaymentMethod,
+  type ReturningCustomer,
 } from "@/lib/returning-customer";
 
 interface DeliveryPreview {
@@ -51,24 +52,31 @@ export default function CheckoutPage() {
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
-  const [returningCustomer, setReturningCustomer] = useState(false);
+  // A saved profile from a previous checkout on this browser — a shared
+  // or public computer can carry a *different* person's name, address, and
+  // phone here, so it must never fill the form silently. It's only offered,
+  // by name, and only applied if this visitor explicitly confirms it's
+  // them; declining (or ignoring it) leaves every field blank as normal.
+  const [savedProfile, setSavedProfile] = useState<ReturningCustomer | null>(null);
+  const [profileApplied, setProfileApplied] = useState(false);
+  const [profileDismissed, setProfileDismissed] = useState(false);
 
-  // Autofill for a customer who's checked out on this browser before —
-  // never overwrites anything already typed (e.g. mid-edit after a back
-  // navigation), and never touches card fields, which are never persisted.
   useEffect(() => {
-    const saved = loadReturningCustomer();
-    if (!saved) return;
-    setFullName((v) => v || saved.fullName);
-    setStreet((v) => v || saved.street);
-    setCity((v) => v || saved.city);
-    setState((v) => v || saved.state);
-    setZip((v) => v || saved.zip);
-    setPhone((v) => v || saved.phone);
-    setSmsOptIn(saved.smsOptIn);
-    setPaymentMethod(saved.paymentMethod);
-    setReturningCustomer(true);
+    setSavedProfile(loadReturningCustomer());
   }, []);
+
+  function applySavedProfile() {
+    if (!savedProfile) return;
+    setFullName(savedProfile.fullName);
+    setStreet(savedProfile.street);
+    setCity(savedProfile.city);
+    setState(savedProfile.state);
+    setZip(savedProfile.zip);
+    setPhone(savedProfile.phone);
+    setSmsOptIn(savedProfile.smsOptIn);
+    setPaymentMethod(savedProfile.paymentMethod);
+    setProfileApplied(true);
+  }
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -233,14 +241,30 @@ export default function CheckoutPage() {
     <div className="mx-auto max-w-5xl px-5 py-12">
       <h1 className="text-3xl font-bold tracking-tight">Checkout</h1>
 
+      {savedProfile && !profileApplied && !profileDismissed && (
+        <div className="card mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent/5 p-4">
+          <p className="text-sm">
+            Welcome back, <strong>{savedProfile.fullName}</strong> — use your saved delivery details?
+          </p>
+          <div className="flex shrink-0 gap-2">
+            <button type="button" onClick={() => setProfileDismissed(true)} className="btn-secondary px-3 py-1.5 text-xs">
+              Not me
+            </button>
+            <button type="button" onClick={applySavedProfile} className="btn-primary px-3 py-1.5 text-xs">
+              Use these details
+            </button>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
         <div className="space-y-8">
           <section className="card space-y-4 p-5">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-semibold">Delivery address</h2>
-              {returningCustomer && (
+              {profileApplied && (
                 <span className="pill bg-accent/10 text-xs text-accent dark:text-accent-light">
-                  Welcome back — details pre-filled
+                  Using saved details
                 </span>
               )}
             </div>
