@@ -130,21 +130,11 @@ export interface AssistantMessage {
   content: string;
 }
 
-/**
- * Answers via a real LLM (Claude) when ANTHROPIC_API_KEY is configured —
- * grounded in the exact farm facts in buildSystemPrompt(), same mock/live
- * pattern as SMS. Without a key, falls back to the keyword-based FAQ
- * matcher so the assistant still works, just less flexibly, and is honest
- * about which mode is answering.
- */
-export async function getAssistantReply(
+async function tryAnthropic(
   message: string,
   history: AssistantMessage[],
-): Promise<{ reply: string; mode: "llm" | "fallback" }> {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return { reply: ruleBasedAnswer(message), mode: "fallback" };
-  }
-
+): Promise<string | null> {
+  if (!process.env.ANTHROPIC_API_KEY) return null;
   try {
     const { default: Anthropic } = await import("@anthropic-ai/sdk");
     const client = new Anthropic();
@@ -160,11 +150,68 @@ export async function getAssistantReply(
     });
 
     const text = response.content.find((b) => b.type === "text");
-    if (!text || text.type !== "text" || !text.text.trim()) {
-      return { reply: ruleBasedAnswer(message), mode: "fallback" };
-    }
-    return { reply: text.text.trim(), mode: "llm" };
+    return text && text.type === "text" && text.text.trim() ? text.text.trim() : null;
   } catch {
-    return { reply: ruleBasedAnswer(message), mode: "fallback" };
+    return null;
   }
+}
+
+/**
+ * Free-tier fallback LLM via Groq (OpenAI-compatible REST API, no SDK
+ * needed for one call) — hosts fast open-source models like Llama 3.3 with
+ * a genuinely free usage tier, so a real reasoning model answers questions
+ * even for a deployment that hasn't paid for an Anthropic key. Same
+ * grounding (buildSystemPrompt) and honesty rules as the Claude path.
+ */
+async function tryGroq(
+  message: string,
+  history: AssistantMessage[],
+): Promise<string | null> {
+  if (!process.env.GROQ_API_KEY) return null;
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+        max_tokens: 400,
+        messages: [
+          { role: "system", content: buildSystemPrompt() },
+          ...history.map((m) => ({ role: m.role, content: m.content })),
+          { role: "user", content: message },
+        ],
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const text = data?.choices?.[0]?.message?.content;
+    return typeof text === "string" && text.trim() ? text.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Answers via a real LLM when one is configured — Claude first if
+ * ANTHROPIC_API_KEY is set (preferred), otherwise Groq's free tier if
+ * GROQ_API_KEY is set, both grounded in the exact farm facts in
+ * buildSystemPrompt(). Without either key, falls back to the
+ * keyword/catalog matcher so the assistant still works, just less
+ * flexibly, and is honest about which mode answered.
+ */
+export async function getAssistantReply(
+  message: string,
+  history: AssistantMessage[],
+): Promise<{ reply: string; mode: "llm" | "fallback" }> {
+  const anthropicReply = await tryAnthropic(message, history);
+  if (anthropicReply) return { reply: anthropicReply, mode: "llm" };
+
+  const groqReply = await tryGroq(message, history);
+  if (groqReply) return { reply: groqReply, mode: "llm" };
+
+  return { reply: ruleBasedAnswer(message), mode: "fallback" };
 }

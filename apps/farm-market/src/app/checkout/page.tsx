@@ -16,6 +16,14 @@ interface DeliveryPreview {
   inServiceArea: boolean;
 }
 
+interface AddressSuggestion {
+  label: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { lines, totals, appliedCoupon, clear, isHydrated } = useCart();
@@ -38,6 +46,11 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [delivery, setDelivery] = useState<DeliveryPreview | null>(null);
+
+  const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const justSelectedSuggestion = useRef(false);
 
   useEffect(() => {
     if (!/^\d{5}$/.test(zip)) {
@@ -64,6 +77,47 @@ export default function CheckoutPage() {
     if (suggestion) setState(suggestion);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zip]);
+
+  // Address autocomplete: debounced so we're not firing a request on every
+  // keystroke, skipped right after picking a suggestion (that fill-in
+  // shouldn't immediately re-trigger a new search against itself).
+  useEffect(() => {
+    if (justSelectedSuggestion.current) {
+      justSelectedSuggestion.current = false;
+      return;
+    }
+    if (street.trim().length < 4) {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      setSuggestionsLoading(true);
+      fetch(`/api/address-autocomplete?q=${encodeURIComponent(street)}`, { signal: controller.signal })
+        .then((r) => (r.ok ? r.json() : { suggestions: [] }))
+        .then((data) => {
+          setAddressSuggestions(data.suggestions ?? []);
+          setShowSuggestions((data.suggestions ?? []).length > 0);
+        })
+        .catch(() => undefined)
+        .finally(() => setSuggestionsLoading(false));
+    }, 400);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [street]);
+
+  function selectAddressSuggestion(s: AddressSuggestion) {
+    justSelectedSuggestion.current = true;
+    setStreet(s.street);
+    setCity(s.city);
+    setState(s.state);
+    setZip(s.zip);
+    setShowSuggestions(false);
+    setAddressSuggestions([]);
+  }
 
   if (isHydrated && lines.length === 0) {
     return (
@@ -140,7 +194,41 @@ export default function CheckoutPage() {
               <input className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} />
             </Field>
             <Field label="Street address" error={errors["address.street"]}>
-              <input className="input" value={street} onChange={(e) => setStreet(e.target.value)} />
+              <div className="relative">
+                <input
+                  className="input"
+                  value={street}
+                  onChange={(e) => setStreet(e.target.value)}
+                  onFocus={() => addressSuggestions.length > 0 && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                  autoComplete="off"
+                  placeholder="Start typing your address…"
+                />
+                {suggestionsLoading && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <Spinner className="text-ink-light/50 dark:text-ink-dark/50" />
+                  </span>
+                )}
+                {showSuggestions && addressSuggestions.length > 0 && (
+                  <ul className="absolute z-20 mt-1 w-full overflow-hidden rounded-lg border border-line-light bg-surface-light shadow-soft dark:border-line-dark dark:bg-surface-dark dark:shadow-softDark">
+                    {addressSuggestions.map((s, i) => (
+                      <li key={i}>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => selectAddressSuggestion(s)}
+                          className="block w-full px-3 py-2 text-left text-sm hover:bg-black/5 dark:hover:bg-white/10"
+                        >
+                          {s.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-ink-light/70 dark:text-ink-dark/70">
+                Start typing and pick your address — city, state, and ZIP fill in automatically.
+              </p>
             </Field>
             <div className="grid grid-cols-3 gap-3">
               <Field label="City" error={errors["address.city"]}>
