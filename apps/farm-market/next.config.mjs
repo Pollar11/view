@@ -40,8 +40,15 @@ const nextConfig = {
         ],
       },
       {
-        // Admin dashboard should never be indexed, even if robots.txt is bypassed.
+        // Admin dashboard and order confirmations should never be indexed —
+        // enforced here at the header level (not just page metadata) so it
+        // holds regardless of how the route renders, and isn't dependent on
+        // robots.txt listing the path at all.
         source: "/admin",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/order/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
     ];
