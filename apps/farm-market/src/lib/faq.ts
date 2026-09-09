@@ -41,8 +41,8 @@ export const FAQ: FaqEntry[] = [
   {
     question: "What payment methods do you accept?",
     answer:
-      "Pay on delivery (cash or card with the driver), or at checkout choose a demo card, Apple Pay, or PayPal — those three are shown for demonstration and don't process a real charge in this environment.",
-    keywords: ["payment", "pay", "pay on delivery", "apple pay", "paypal", "cash", "card"],
+      "Pay on delivery (cash or card with the driver), or pay online by card at checkout through Stripe — Apple Pay and Google Pay may also show up automatically there if your device supports them. Both are real, working payment methods.",
+    keywords: ["payment", "pay", "pay on delivery", "apple pay", "google pay", "cash", "card", "stripe"],
   },
   {
     question: "Will you text me?",

@@ -1,4 +1,4 @@
-export type PaymentMethod = "cod" | "card_demo" | "apple_pay_demo" | "paypal_demo";
+export type PaymentMethod = "cod" | "stripe";
 
 export interface ReturningCustomer {
   fullName: string;

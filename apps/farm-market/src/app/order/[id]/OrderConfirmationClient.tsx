@@ -12,16 +12,20 @@ import { Spinner } from "@/components/Spinner";
 
 const PAYMENT_LABELS: Record<PaymentMethod, string> = {
   cod: "Pay on delivery",
-  card_demo: "Demo card (no real charge)",
-  apple_pay_demo: "Apple Pay (demo — no real charge)",
-  paypal_demo: "PayPal (demo — no real charge)",
+  stripe: "Card (via Stripe)",
 };
 
 function paymentDetailLine(order: Order): string {
   const label = PAYMENT_LABELS[order.paymentMethod];
-  return order.paymentMethod === "card_demo" && order.cardLast4
-    ? `${label} ending in ${order.cardLast4}`
-    : label;
+  if (order.paymentMethod === "stripe" && order.cardLast4) {
+    const brand = order.cardBrand ? capitalize(order.cardBrand) : "Card";
+    return `${brand} ending in ${order.cardLast4}`;
+  }
+  return label;
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 type LoadState = { status: "loading" } | { status: "found"; order: Order } | { status: "not-found" };

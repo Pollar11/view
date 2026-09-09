@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/store/cart-context";
-import { checkoutSchema, isLuhnValid } from "@/lib/validation";
-import { formatCardExpiry, formatCardNumber, formatPhoneInput, money } from "@/lib/format";
+import { checkoutSchema } from "@/lib/validation";
+import { formatPhoneInput, money } from "@/lib/format";
 import { getStoredUtm } from "@/lib/utm";
 import { Spinner } from "@/components/Spinner";
 import { stateFromZip } from "@/lib/zip-state";
@@ -31,14 +31,17 @@ interface AddressSuggestion {
   distanceMiles: number;
 }
 
-/** A well-known Luhn-valid test number (the same one Stripe and most
- * processors use for test mode) — never a real card, and this build never
- * contacts a real payment processor either way. Any future expiry passes
- * the demo's own validation. */
-const DEMO_CARD = { number: "4242 4242 4242 4242", expiry: "12/29", cvc: "123" };
-
 export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-5xl px-5 py-12" />}>
+      <CheckoutPageContent />
+    </Suspense>
+  );
+}
+
+function CheckoutPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { lines, totals, appliedCoupon, clear, isHydrated } = useCart();
 
   const [fullName, setFullName] = useState("");
@@ -49,9 +52,6 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [smsOptIn, setSmsOptIn] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
   // A saved profile from a previous checkout on this browser — a shared
   // or public computer can carry a *different* person's name, address, and
   // phone here, so it must never fill the form silently. It's only offered,
@@ -82,6 +82,7 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [delivery, setDelivery] = useState<DeliveryPreview | null>(null);
+  const wasCanceled = searchParams.get("canceled") === "1";
 
   const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -145,12 +146,6 @@ export default function CheckoutPage() {
     };
   }, [street]);
 
-  function fillDemoCard() {
-    setCardNumber(DEMO_CARD.number);
-    setCardExpiry(DEMO_CARD.expiry);
-    setCardCvc(DEMO_CARD.cvc);
-  }
-
   function selectAddressSuggestion(s: AddressSuggestion) {
     justSelectedSuggestion.current = true;
     setStreet(s.street);
@@ -181,10 +176,6 @@ export default function CheckoutPage() {
       smsOptIn,
       paymentMethod,
       discountCode: appliedCoupon?.code ?? "",
-      card:
-        paymentMethod === "card_demo"
-          ? { number: cardNumber, expiry: cardExpiry, cvc: cardCvc }
-          : undefined,
       utm: getStoredUtm(),
     };
 
@@ -197,12 +188,34 @@ export default function CheckoutPage() {
       setErrors(fieldErrors);
       return;
     }
-    if (paymentMethod === "card_demo" && !isLuhnValid(cardNumber)) {
-      setErrors({ "card.number": "Enter a valid demo card number" });
-      return;
-    }
     setErrors({});
     setSubmitting(true);
+
+    saveReturningCustomer({ fullName, street, city, state, zip, phone, smsOptIn, paymentMethod });
+
+    if (paymentMethod === "stripe") {
+      try {
+        const res = await fetch("/api/checkout/stripe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setServerError(data.error ?? "Something went wrong. Please try again.");
+          setSubmitting(false);
+          return;
+        }
+        clear();
+        // Stripe's own hosted page — never our own route, so a full
+        // navigation rather than router.push.
+        window.location.href = data.url;
+      } catch {
+        setServerError("Network error — please try again.");
+        setSubmitting(false);
+      }
+      return;
+    }
 
     try {
       const res = await fetch("/api/checkout", {
@@ -217,7 +230,6 @@ export default function CheckoutPage() {
         return;
       }
       clear();
-      saveReturningCustomer({ fullName, street, city, state, zip, phone, smsOptIn, paymentMethod });
       // Vercel's serverless functions don't share memory between
       // invocations, so the confirmation page's own request can land on a
       // different instance that never saw this order. Stash it here so the
@@ -240,6 +252,12 @@ export default function CheckoutPage() {
   return (
     <div className="mx-auto max-w-5xl px-5 py-12">
       <h1 className="text-3xl font-bold tracking-tight">Checkout</h1>
+
+      {wasCanceled && (
+        <p className="mt-4 rounded-lg bg-black/5 p-3 text-sm text-ink-light/85 dark:bg-white/5 dark:text-ink-dark/85">
+          Payment was canceled — your cart is still here, try again whenever you&apos;re ready.
+        </p>
+      )}
 
       {savedProfile && !profileApplied && !profileDismissed && (
         <div className="card mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent/5 p-4">
@@ -374,86 +392,21 @@ export default function CheckoutPage() {
               <PaymentOption
                 label="Pay on delivery"
                 sublabel="Cash or card with the driver"
-                badge="real"
                 selected={paymentMethod === "cod"}
                 onSelect={() => setPaymentMethod("cod")}
               />
               <PaymentOption
                 label="Card"
-                sublabel="Pay now online"
-                badge="demo"
-                selected={paymentMethod === "card_demo"}
-                onSelect={() => setPaymentMethod("card_demo")}
-              />
-              <PaymentOption
-                label="Apple Pay"
-                sublabel="Pay now online"
-                badge="demo"
-                selected={paymentMethod === "apple_pay_demo"}
-                onSelect={() => setPaymentMethod("apple_pay_demo")}
-              />
-              <PaymentOption
-                label="PayPal"
-                sublabel="Pay now online"
-                badge="demo"
-                selected={paymentMethod === "paypal_demo"}
-                onSelect={() => setPaymentMethod("paypal_demo")}
+                sublabel="Pay now online via Stripe — card, Apple Pay, or Google Pay where available"
+                selected={paymentMethod === "stripe"}
+                onSelect={() => setPaymentMethod("stripe")}
               />
             </div>
-
-            {paymentMethod !== "cod" && (
-              <p className="rounded-lg bg-black/5 p-3 text-xs text-ink-light/80 dark:bg-white/5 dark:text-ink-dark/80">
-                <strong>Demo mode:</strong> this option isn&apos;t wired to a real payment
-                processor in this build — placing the order confirms it without an actual charge.
-                Only &quot;Pay on delivery&quot; is a real, working payment method here.
-              </p>
-            )}
-
-            {paymentMethod === "card_demo" && (
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between gap-3 rounded-lg bg-black/5 p-3 text-xs dark:bg-white/5">
-                  <span className="text-ink-light/80 dark:text-ink-dark/80">
-                    No real card? Use the demo test number: <strong>{DEMO_CARD.number}</strong>,{" "}
-                    exp <strong>{DEMO_CARD.expiry}</strong>, CVC <strong>{DEMO_CARD.cvc}</strong>.
-                  </span>
-                  <button type="button" onClick={fillDemoCard} className="btn-secondary shrink-0 px-3 py-1.5 text-xs">
-                    Fill demo card
-                  </button>
-                </div>
-                <Field label="Card number" error={errors["card.number"]}>
-                  <input
-                    className="input"
-                    inputMode="numeric"
-                    placeholder="4242 4242 4242 4242"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                  />
-                </Field>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Expiry">
-                    <input
-                      className="input"
-                      inputMode="numeric"
-                      placeholder="MM/YY"
-                      value={cardExpiry}
-                      onChange={(e) => setCardExpiry(formatCardExpiry(e.target.value))}
-                    />
-                  </Field>
-                  <Field label="CVC">
-                    <input
-                      className="input"
-                      inputMode="numeric"
-                      placeholder="123"
-                      value={cardCvc}
-                      onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                    />
-                  </Field>
-                </div>
-                <p className="text-xs text-ink-light/80 dark:text-ink-dark/80">
-                  Demo mode: this validates like a real card (Luhn check) but never contacts a payment processor.
-                </p>
-              </div>
-            )}
+            <p className="text-xs text-ink-light/70 dark:text-ink-dark/70">
+              Both are real, working payment methods. Choosing Card takes you
+              to Stripe&apos;s own secure checkout page — no card details are
+              ever entered on or stored by this site.
+            </p>
           </section>
         </div>
 
@@ -489,7 +442,13 @@ export default function CheckoutPage() {
 
           <button type="submit" disabled={submitting} className="btn-primary w-full gap-2">
             {submitting && <Spinner />}
-            {submitting ? "Placing order…" : `Place order — ${money(totals.total)}`}
+            {submitting
+              ? paymentMethod === "stripe"
+                ? "Redirecting to Stripe…"
+                : "Placing order…"
+              : paymentMethod === "stripe"
+                ? `Continue to payment — ${money(totals.total)}`
+                : `Place order — ${money(totals.total)}`}
           </button>
         </aside>
       </form>
@@ -500,13 +459,11 @@ export default function CheckoutPage() {
 function PaymentOption({
   label,
   sublabel,
-  badge,
   selected,
   onSelect,
 }: {
   label: string;
   sublabel: string;
-  badge: "real" | "demo";
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -522,15 +479,6 @@ function PaymentOption({
       <span className="flex-1">
         <span className="font-medium">{label}</span>
         <span className="ml-2 text-xs text-ink-light/70 dark:text-ink-dark/70">{sublabel}</span>
-      </span>
-      <span
-        className={`pill shrink-0 text-[10px] ${
-          badge === "real"
-            ? "bg-accent/10 text-accent dark:text-accent-light"
-            : "bg-black/5 text-ink-light/70 dark:bg-white/10 dark:text-ink-dark/70"
-        }`}
-      >
-        {badge === "real" ? "Real" : "Demo"}
       </span>
     </label>
   );

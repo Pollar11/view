@@ -1,21 +1,12 @@
 import { NextResponse } from "next/server";
-import { checkoutSchema, isLuhnValid } from "@/lib/validation";
+import { checkoutSchema } from "@/lib/validation";
 import { computeTotals } from "@/lib/pricing";
 import { estimateDelivery } from "@/lib/delivery";
 import { getProduct } from "@/lib/products";
-import {
-  createOrder,
-  decrementStock,
-  findValidCoupon,
-  getStock,
-  markCouponUsed,
-  newId,
-  upsertCustomer,
-} from "@/lib/db";
-import { sendSms, orderConfirmationSms } from "@/lib/sms";
+import { findValidCoupon, getStock } from "@/lib/db";
+import { fulfillOrder } from "@/lib/order-fulfillment";
 import { rateLimit } from "@/lib/rate-limit";
 import { readBoundedJson } from "@/lib/request-body";
-import type { Order } from "@/lib/types";
 
 export async function POST(req: Request) {
   if (!rateLimit(req, "checkout", { limit: 10, windowMs: 10 * 60 * 1000 })) {
@@ -38,6 +29,17 @@ export async function POST(req: Request) {
     );
   }
   const input = parsed.data;
+
+  // This route only ever creates an order immediately, with no payment
+  // confirmation step in between — that's only ever correct for "pay on
+  // delivery". A real charge (Stripe) goes through /api/checkout/stripe
+  // instead, which creates the order only once payment is confirmed.
+  if (input.paymentMethod !== "cod") {
+    return NextResponse.json(
+      { error: "Use /api/checkout/stripe for card payment." },
+      { status: 400 },
+    );
+  }
 
   // Server-side stock check — the source of truth, never trust the client.
   for (const line of input.items) {
@@ -80,15 +82,6 @@ export async function POST(req: Request) {
     }
   }
 
-  if (input.paymentMethod === "card_demo") {
-    if (!input.card || !isLuhnValid(input.card.number)) {
-      return NextResponse.json(
-        { error: "Enter a valid demo card number." },
-        { status: 422 },
-      );
-    }
-  }
-
   const totals = computeTotals(
     input.items,
     coupon ? { code: coupon.code, percentOff: coupon.percentOff } : null,
@@ -98,10 +91,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Your cart is empty." }, { status: 422 });
   }
 
-  const orderId = newId("order");
-  const order: Order = {
-    id: orderId,
-    customerId: "",
+  const order = await fulfillOrder({
     items: totals.items,
     subtotal: totals.subtotal,
     bundleDiscountRate: totals.bundleDiscountRate,
@@ -110,53 +100,16 @@ export async function POST(req: Request) {
     discountAmount: totals.discountAmount,
     deliveryFee: totals.deliveryFee,
     total: totals.total,
-    address: input.address,
-    phone: input.phone,
-    smsOptIn: input.smsOptIn,
-    paymentMethod: input.paymentMethod,
-    cardLast4:
-      input.paymentMethod === "card_demo" && input.card
-        ? input.card.number.replace(/\D/g, "").slice(-4)
-        : null,
     deliveryEtaDays: delivery.etaDays,
     deliveryMiles: delivery.milesEstimate,
-    status: "confirmed",
-    createdAt: new Date().toISOString(),
-    utm: input.utm && Object.keys(input.utm).length > 0 ? input.utm : null,
-  };
-
-  const customer = await upsertCustomer({
-    phone: input.phone,
-    name: input.address.fullName,
-    smsOptIn: input.smsOptIn,
     address: input.address,
-    orderTotal: totals.total,
+    phone: input.phone,
+    smsOptIn: input.smsOptIn,
+    paymentMethod: "cod",
+    cardLast4: null,
+    cardBrand: null,
+    utm: input.utm && Object.keys(input.utm).length > 0 ? input.utm : null,
   });
-  order.customerId = customer.id;
-
-  await createOrder(order);
-  for (const line of input.items) {
-    await decrementStock(line.slug, line.qty);
-  }
-  if (coupon) {
-    await markCouponUsed(coupon.code);
-  }
-
-  if (input.smsOptIn) {
-    await sendSms({
-      to: input.phone,
-      body: orderConfirmationSms({
-        name: input.address.fullName,
-        orderId: order.id,
-        city: input.address.city,
-        zip: input.address.zip,
-        etaDays: delivery.etaDays,
-        total: order.total,
-      }),
-      campaign: "order-confirmation",
-      customerId: customer.id,
-    });
-  }
 
   return NextResponse.json({ order }, { status: 201 });
 }

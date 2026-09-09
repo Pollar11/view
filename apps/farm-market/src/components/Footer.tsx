@@ -124,8 +124,8 @@ export function Footer() {
         </details>
 
         <p className="mt-8 text-xs text-ink-light/75 dark:text-ink-dark/75">
-          © {new Date().getFullYear()} Meadow &amp; Market Farm. Demo storefront —
-          payments shown here are simulated, no real card is charged.
+          © {new Date().getFullYear()} Meadow &amp; Market Farm. Card payments are
+          processed securely by Stripe — this site never sees or stores your card details.
         </p>
       </div>
     </footer>

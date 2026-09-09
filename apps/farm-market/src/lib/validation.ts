@@ -63,34 +63,9 @@ export const checkoutSchema = z.object({
   address: addressSchema,
   phone: phoneSchema,
   smsOptIn: z.boolean(),
-  paymentMethod: z.enum(["cod", "card_demo", "apple_pay_demo", "paypal_demo"]),
+  paymentMethod: z.enum(["cod", "stripe"]),
   discountCode: z.string().trim().max(40).optional().or(z.literal("")),
-  card: z
-    .object({
-      number: z.string().trim(),
-      expiry: z.string().trim(),
-      cvc: z.string().trim(),
-    })
-    .optional(),
   utm: utmSchema,
 });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
-
-/** Luhn check for the demo card form — no real payment processor is contacted. */
-export function isLuhnValid(cardNumber: string): boolean {
-  const digits = cardNumber.replace(/\D/g, "");
-  if (digits.length < 12 || digits.length > 19) return false;
-  let sum = 0;
-  let alt = false;
-  for (let i = digits.length - 1; i >= 0; i--) {
-    let n = parseInt(digits[i]!, 10);
-    if (alt) {
-      n *= 2;
-      if (n > 9) n -= 9;
-    }
-    sum += n;
-    alt = !alt;
-  }
-  return sum % 10 === 0;
-}

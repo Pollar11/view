@@ -46,11 +46,10 @@ export default function TermsPage() {
           conditions, and processing time can shift them.
         </Section>
         <Section title="5. Payment">
-          &quot;Pay on delivery&quot; (cash or card with the driver) is the
-          only payment method that&apos;s actually processed in this
-          environment. The demo card, Apple Pay, and PayPal options shown at
-          checkout are for demonstration only — no real payment processor is
-          contacted and no card number is stored, ever.
+          Pay with cash or card on delivery, or pay online by card through
+          Stripe at checkout — both are real, working payment methods. Card
+          payments are processed entirely by Stripe on their own secure
+          page; your card number is never entered on or stored by this site.
         </Section>
         <Section title="6. Quality and satisfaction">
           Everything ships fresh, cut to order after you purchase — nothing

@@ -66,7 +66,10 @@ export interface OrderItem {
   lineTotal: number;
 }
 
-export type PaymentMethod = "cod" | "card_demo" | "apple_pay_demo" | "paypal_demo";
+/** "cod" pays the driver on delivery, handled entirely by this app.
+ * "stripe" is a real charge through Stripe's hosted Checkout — card
+ * details go straight to Stripe, never through our server. */
+export type PaymentMethod = "cod" | "stripe";
 
 export interface UtmAttribution {
   source?: string;
@@ -91,14 +94,45 @@ export interface Order {
   phone: string;
   smsOptIn: boolean;
   paymentMethod: PaymentMethod;
-  /** Last 4 digits only, for a card_demo order — never the full number,
-   * expiry, or CVC, none of which are ever persisted. */
+  /** Last 4 digits and brand, for a Stripe order — Stripe's own PCI-scoped
+   * card storage is the only place the actual card number ever exists. */
   cardLast4: string | null;
+  cardBrand: string | null;
   deliveryEtaDays: number;
   deliveryMiles: number;
   status: "confirmed";
   createdAt: string;
   utm: UtmAttribution | null;
+}
+
+/**
+ * A checkout that's been priced and validated but not yet paid — created
+ * right before redirecting to Stripe, and promoted into a real Order only
+ * once Stripe confirms payment (via webhook, or the processing page's
+ * fallback poll). Totals are locked in here at creation time and copied
+ * verbatim into the Order at that point; they're never recomputed after
+ * the customer has already been charged this exact amount.
+ */
+export interface PendingCheckout {
+  id: string;
+  items: OrderItem[];
+  subtotal: number;
+  bundleDiscountRate: number;
+  bundleDiscountAmount: number;
+  discountCode: string | null;
+  discountAmount: number;
+  deliveryFee: number;
+  total: number;
+  deliveryEtaDays: number;
+  deliveryMiles: number;
+  address: Address;
+  phone: string;
+  smsOptIn: boolean;
+  utm: UtmAttribution | null;
+  stripeSessionId: string | null;
+  status: "pending" | "completed";
+  orderId: string | null;
+  createdAt: string;
 }
 
 export interface Customer {

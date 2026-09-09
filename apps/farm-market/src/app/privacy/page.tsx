@@ -48,9 +48,11 @@ export default function PrivacyPage() {
         </Section>
         <Section title="Payment data">
           &quot;Pay on delivery&quot; involves no card data collection at all.
-          The demo card / Apple Pay / PayPal options on this site are for
-          demonstration only — no real payment processor is contacted, and no
-          card number is ever stored.
+          Paying online by card goes through Stripe&apos;s own hosted
+          checkout page — your card details are entered there, never on this
+          site, and we never see or store your full card number. We keep
+          only what Stripe tells us is safe to show on a receipt: the card
+          brand and last 4 digits.
         </Section>
         <Section title="Chat assistant">
           Messages you send the chat assistant are used only to answer your
