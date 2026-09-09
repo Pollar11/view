@@ -105,8 +105,9 @@ export default function AdminPage() {
       <div className="mx-auto max-w-sm px-5 py-24">
         <h1 className="text-2xl font-bold">Farm dashboard</h1>
         <p className="mt-1 text-sm text-ink-light/85 dark:text-ink-dark/85">
-          Owner access only. Set <code>ADMIN_PASSWORD</code> in your environment
-          before deploying — see the project README for the local-dev default.
+          Owner access only. Set <code>ADMIN_PASSWORD_HASH</code> and{" "}
+          <code>ADMIN_SESSION_SECRET</code> in your environment before deploying
+          — run <code>scripts/hash-admin-password.mjs</code> to generate the hash.
         </p>
         <form onSubmit={handleLogin} className="mt-6 space-y-3">
           <div className="relative">

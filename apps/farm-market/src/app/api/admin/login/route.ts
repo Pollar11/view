@@ -1,27 +1,14 @@
 import { NextResponse } from "next/server";
-import crypto from "node:crypto";
 import {
   ADMIN_COOKIE_MAX_AGE_SECONDS,
   ADMIN_COOKIE_NAME,
   createAdminToken,
   createCsrfToken,
   isAdminConfigured,
+  verifyAdminPassword,
 } from "@/lib/admin-auth";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { readBoundedJson } from "@/lib/request-body";
-
-const DEFAULT_DEMO_PASSWORD = "farm2026";
-
-function timingSafeStringEqual(a: string, b: string): boolean {
-  const bufA = Buffer.from(a);
-  const bufB = Buffer.from(b);
-  if (bufA.length !== bufB.length) {
-    // still run a comparison of equal length to avoid an obvious timing gap
-    crypto.timingSafeEqual(bufA, bufA);
-    return false;
-  }
-  return crypto.timingSafeEqual(bufA, bufB);
-}
 
 export async function POST(req: Request) {
   if (!rateLimit(req, "admin-login", { limit: 5, windowMs: 10 * 60 * 1000 })) {
@@ -33,7 +20,7 @@ export async function POST(req: Request) {
 
   if (!isAdminConfigured()) {
     console.error(
-      "[security] admin login blocked — set ADMIN_PASSWORD and ADMIN_SESSION_SECRET in this deployment's environment variables",
+      "[security] admin login blocked — set ADMIN_PASSWORD_HASH and ADMIN_SESSION_SECRET in this deployment's environment variables (run scripts/hash-admin-password.mjs to generate the hash)",
     );
     return NextResponse.json(
       { error: "Admin access isn't configured on this deployment yet." },
@@ -43,9 +30,8 @@ export async function POST(req: Request) {
 
   const body = (await readBoundedJson(req, 2 * 1024)) as { password?: unknown } | null;
   const password = typeof body?.password === "string" ? body.password : "";
-  const expected = process.env.ADMIN_PASSWORD || DEFAULT_DEMO_PASSWORD;
 
-  if (!timingSafeStringEqual(password, expected)) {
+  if (!verifyAdminPassword(password)) {
     console.warn(`[security] failed admin login from ${clientIp(req)}`);
     return NextResponse.json({ error: "Incorrect password" }, { status: 401 });
   }

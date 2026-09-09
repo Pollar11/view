@@ -4,7 +4,7 @@ const COOKIE_NAME = "farm_admin_session";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
 
 /**
- * Admin is fail-closed in production: without a real ADMIN_PASSWORD and
+ * Admin is fail-closed in production: without a real ADMIN_PASSWORD_HASH and
  * ADMIN_SESSION_SECRET set, every admin login and every session check
  * refuses outright rather than falling back to a value baked into the
  * source (which anyone with read access to this repo — or a leaked
@@ -13,7 +13,37 @@ const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
  */
 export function isAdminConfigured(): boolean {
   if (process.env.NODE_ENV !== "production") return true;
-  return Boolean(process.env.ADMIN_PASSWORD) && Boolean(process.env.ADMIN_SESSION_SECRET);
+  return Boolean(process.env.ADMIN_PASSWORD_HASH) && Boolean(process.env.ADMIN_SESSION_SECRET);
+}
+
+const SCRYPT_KEY_LENGTH = 64;
+
+/**
+ * The admin password itself is never stored, in an env var or anywhere
+ * else — only a salted scrypt hash of it (ADMIN_PASSWORD_HASH, generated
+ * by scripts/hash-admin-password.mjs), in "<saltHex>:<hashHex>" form. A
+ * leaked env var listing then reveals nothing usable without redoing the
+ * (deliberately slow) hash computation for every guess.
+ */
+function verifyAgainstHash(candidate: string, stored: string): boolean {
+  const [salt, hash] = stored.split(":");
+  if (!salt || !hash) return false;
+  try {
+    const candidateHash = crypto.scryptSync(candidate, salt, SCRYPT_KEY_LENGTH);
+    const storedHash = Buffer.from(hash, "hex");
+    if (candidateHash.length !== storedHash.length) return false;
+    return crypto.timingSafeEqual(candidateHash, storedHash);
+  } catch {
+    return false;
+  }
+}
+
+export function verifyAdminPassword(candidate: string): boolean {
+  const stored = process.env.ADMIN_PASSWORD_HASH;
+  if (stored) return verifyAgainstHash(candidate, stored);
+  // No hash configured — only ever reachable in dev (isAdminConfigured()
+  // gates production before this is called), so a plain fallback is fine.
+  return candidate === (process.env.ADMIN_PASSWORD || "farm2026");
 }
 
 function secret(): string {
@@ -31,7 +61,7 @@ function sign(payload: string): string {
 
 export function createAdminToken(): string {
   if (!isAdminConfigured()) {
-    throw new Error("Admin is not configured (ADMIN_PASSWORD/ADMIN_SESSION_SECRET unset)");
+    throw new Error("Admin is not configured (ADMIN_PASSWORD_HASH/ADMIN_SESSION_SECRET unset)");
   }
   const expires = Date.now() + SESSION_TTL_MS;
   const payload = `${expires}`;
