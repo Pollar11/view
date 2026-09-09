@@ -27,6 +27,7 @@ interface AddressSuggestion {
   city: string;
   state: string;
   zip: string;
+  distanceMiles: number;
 }
 
 /** A well-known Luhn-valid test number (the same one Stripe and most
@@ -113,7 +114,7 @@ export default function CheckoutPage() {
       justSelectedSuggestion.current = false;
       return;
     }
-    if (street.trim().length < 4) {
+    if (street.trim().length < 3) {
       setAddressSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -129,7 +130,7 @@ export default function CheckoutPage() {
         })
         .catch(() => undefined)
         .finally(() => setSuggestionsLoading(false));
-    }, 400);
+    }, 200);
     return () => {
       clearTimeout(timer);
       controller.abort();
@@ -270,9 +271,12 @@ export default function CheckoutPage() {
                           type="button"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => selectAddressSuggestion(s)}
-                          className="block w-full px-3 py-2 text-left text-sm hover:bg-black/5 dark:hover:bg-white/10"
+                          className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-black/5 dark:hover:bg-white/10"
                         >
-                          {s.label}
+                          <span className="truncate">{s.label}</span>
+                          <span className="shrink-0 text-xs text-ink-light/60 dark:text-ink-dark/60">
+                            {s.distanceMiles} mi
+                          </span>
                         </button>
                       </li>
                     ))}
@@ -280,7 +284,7 @@ export default function CheckoutPage() {
                 )}
               </div>
               <p className="mt-1 text-xs text-ink-light/70 dark:text-ink-dark/70">
-                Start typing and pick your address — city, state, and ZIP fill in automatically.
+                Start typing and pick your address — closest to the farm shown first, city/state/ZIP fill in automatically.
               </p>
             </Field>
             <div className="grid grid-cols-3 gap-3">

@@ -16,10 +16,19 @@ const CATEGORY_SYNONYMS: Record<Category, string[]> = {
   rabbit: ["rabbit", "bunny"],
 };
 
+/** Matches `keyword` as a whole word/phrase in `text`, never as a substring
+ * of an unrelated word — e.g. "deliver" must not match inside "delivery",
+ * and "ship" must not match inside "membership". A plain .includes() check
+ * was silently misrouting questions to the wrong FAQ entry this way. */
+function containsKeyword(text: string, keyword: string): boolean {
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\b${escaped}\\b`, "i").test(text);
+}
+
 function catalogCategoryAnswer(question: string): string | null {
   const q = question.toLowerCase();
   const category = (Object.keys(CATEGORY_SYNONYMS) as Category[]).find((cat) =>
-    CATEGORY_SYNONYMS[cat].some((w) => q.includes(w)),
+    CATEGORY_SYNONYMS[cat].some((w) => containsKeyword(q, w)),
   );
   if (!category) return null;
 
@@ -42,7 +51,9 @@ const FALLBACK_ANSWER =
 const STOP_WORDS = new Set([
   "the", "a", "an", "is", "are", "do", "does", "did", "you", "your", "i",
   "what", "when", "where", "how", "can", "will", "for", "and", "of", "to",
-  "in", "on", "it", "my", "me", "with", "about", "have", "has",
+  "in", "on", "it", "my", "me", "with", "about", "have", "has", "much",
+  "get", "any", "some", "there", "this", "that", "be", "am", "was", "were",
+  "just", "also", "if", "or", "at", "as", "be", "am",
 ]);
 
 function wordsOf(text: string): string[] {
@@ -70,7 +81,7 @@ export function ruleBasedAnswer(question: string): string {
 
   let best: { score: number; answer: string } | null = null;
   for (const entry of FAQ) {
-    const score = entry.keywords.reduce((sum, kw) => (q.includes(kw) ? sum + 1 : sum), 0);
+    const score = entry.keywords.reduce((sum, kw) => (containsKeyword(q, kw) ? sum + 1 : sum), 0);
     if (score > 0 && (!best || score > best.score)) {
       best = { score, answer: entry.answer };
     }
@@ -80,13 +91,21 @@ export function ruleBasedAnswer(question: string): string {
   const catalogAnswer = catalogCategoryAnswer(question);
   if (catalogAnswer) return catalogAnswer;
 
+  // Broad word-overlap pass — a last resort for real paraphrases the
+  // curated keywords didn't anticipate. Requires both an absolute (>=2)
+  // and a proportional (>=40% of the question's meaningful words) overlap
+  // so a single incidental shared word (e.g. "hours" appearing once in an
+  // unrelated answer) can't produce a confidently wrong answer — an honest
+  // "I'm not sure" beats a fluent but incorrect one.
   const qWords = new Set(wordsOf(question));
   if (qWords.size > 0) {
     let bestOverlap: { score: number; answer: string } | null = null;
     for (const entry of FAQ) {
-      const entryWords = wordsOf(`${entry.question} ${entry.answer}`);
-      const overlap = entryWords.reduce((sum, w) => (qWords.has(w) ? sum + 1 : sum), 0);
-      if (overlap > 0 && (!bestOverlap || overlap > bestOverlap.score)) {
+      const entryWords = new Set(wordsOf(`${entry.question} ${entry.answer}`));
+      let overlap = 0;
+      for (const w of qWords) if (entryWords.has(w)) overlap++;
+      const ratio = overlap / qWords.size;
+      if (overlap >= 2 && ratio >= 0.4 && (!bestOverlap || overlap > bestOverlap.score)) {
         bestOverlap = { score: overlap, answer: entry.answer };
       }
     }

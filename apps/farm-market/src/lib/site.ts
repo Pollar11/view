@@ -47,7 +47,10 @@ export const GOOGLE_MAPS_DIRECTIONS_URL = `https://www.google.com/maps/search/?a
 )}`;
 
 /** Rough coordinates for the Fruitvale/San Antonio area of Oakland, CA
- * (94606) — used only to center the embedded map, not asserted as an
- * exact geocode of the street address. */
+ * (94606) — used to center the embedded map and, in address-autocomplete,
+ * to rank results by real distance from the farm; not asserted as an exact
+ * geocode of the street address. */
+export const FARM_COORDS = { lat: 37.782, lon: -122.23 };
+
 export const FARM_MAP_EMBED_URL =
   "https://www.openstreetmap.org/export/embed.html?bbox=-122.2450%2C37.7720%2C-122.2150%2C37.7920&layer=mapnik&marker=37.7820%2C-122.2300";

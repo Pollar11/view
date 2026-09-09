@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { haversineMiles } from "@/lib/geo";
+import { FARM_COORDS } from "@/lib/site";
 
 interface NominatimAddress {
   house_number?: string;
@@ -16,7 +18,39 @@ interface NominatimAddress {
 interface NominatimResult {
   display_name: string;
   address?: NominatimAddress;
+  lat: string;
+  lon: string;
 }
+
+interface CacheEntry {
+  suggestions: unknown;
+  expiresAt: number;
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __farmMarketAddressCache: Map<string, CacheEntry> | undefined;
+}
+
+function cacheStore(): Map<string, CacheEntry> {
+  if (!global.__farmMarketAddressCache) {
+    global.__farmMarketAddressCache = new Map();
+  }
+  return global.__farmMarketAddressCache;
+}
+
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+/** ~6 degrees around the farm in every direction — comfortably covers the
+ * whole 320 mile service radius. Passed to Nominatim as a soft bias
+ * (bounded=0), not a hard filter, so addresses outside it still appear,
+ * just ranked lower once we sort by real distance below. */
+const VIEWBOX = [
+  FARM_COORDS.lon - 6,
+  FARM_COORDS.lat + 6,
+  FARM_COORDS.lon + 6,
+  FARM_COORDS.lat - 6,
+].join(",");
 
 const STATE_ABBREVIATIONS: Record<string, string> = {
   alabama: "AL", alaska: "AK", arizona: "AZ", arkansas: "AR", california: "CA",
@@ -40,14 +74,20 @@ const STATE_ABBREVIATIONS: Record<string, string> = {
  * a browser can't set, plus this lets us rate-limit it ourselves.
  */
 export async function GET(req: Request) {
-  if (!rateLimit(req, "address-autocomplete", { limit: 30, windowMs: 60 * 1000 })) {
+  if (!rateLimit(req, "address-autocomplete", { limit: 40, windowMs: 60 * 1000 })) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") ?? "").trim();
-  if (q.length < 4) {
+  if (q.length < 3) {
     return NextResponse.json({ suggestions: [] });
+  }
+
+  const cacheKey = q.toLowerCase();
+  const cached = cacheStore().get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return NextResponse.json({ suggestions: cached.suggestions });
   }
 
   try {
@@ -56,7 +96,12 @@ export async function GET(req: Request) {
     url.searchParams.set("format", "json");
     url.searchParams.set("addressdetails", "1");
     url.searchParams.set("countrycodes", "us");
-    url.searchParams.set("limit", "5");
+    url.searchParams.set("limit", "10");
+    // Soft-biases results toward the farm's delivery region so nearby
+    // matches surface even from a short, ambiguous query — we still sort
+    // by real distance below rather than trusting this ranking alone.
+    url.searchParams.set("viewbox", VIEWBOX);
+    url.searchParams.set("bounded", "0");
 
     const res = await fetch(url, {
       headers: {
@@ -65,7 +110,7 @@ export async function GET(req: Request) {
         "User-Agent": "MeadowAndMarketDemo/1.0 (farm-to-door storefront demo)",
         "Accept-Language": "en-US",
       },
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(4000),
     });
     if (!res.ok) return NextResponse.json({ suggestions: [] });
 
@@ -78,17 +123,27 @@ export async function GET(req: Request) {
         const city = a.city || a.town || a.village || a.hamlet;
         const stateName = a.state?.toLowerCase();
         const state = stateName ? STATE_ABBREVIATIONS[stateName] ?? a.state : undefined;
-        if (!street || !city || !state || !a.postcode) return null;
+        const lat = parseFloat(r.lat);
+        const lon = parseFloat(r.lon);
+        if (!street || !city || !state || !a.postcode || Number.isNaN(lat) || Number.isNaN(lon)) {
+          return null;
+        }
         return {
           label: r.display_name,
           street,
           city,
           state,
           zip: a.postcode.slice(0, 5),
+          distanceMiles: Math.round(haversineMiles(FARM_COORDS.lat, FARM_COORDS.lon, lat, lon)),
         };
       })
-      .filter((s): s is NonNullable<typeof s> => s !== null);
+      .filter((s): s is NonNullable<typeof s> => s !== null)
+      // Closest to the farm first — real great-circle distance, not
+      // Nominatim's internal relevance ranking.
+      .sort((a, b) => a.distanceMiles - b.distanceMiles)
+      .slice(0, 6);
 
+    cacheStore().set(cacheKey, { suggestions, expiresAt: Date.now() + CACHE_TTL_MS });
     return NextResponse.json({ suggestions });
   } catch {
     return NextResponse.json({ suggestions: [] });
