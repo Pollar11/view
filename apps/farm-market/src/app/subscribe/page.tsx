@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscriptions";
 import { CATEGORY_LABELS } from "@/lib/products";
 import type { Category } from "@/lib/types";
-import { money } from "@/lib/format";
+import { formatPhoneInput, money } from "@/lib/format";
 
 interface Quote {
   monthlyDeliveryFee: number;
@@ -115,7 +115,7 @@ export default function SubscribePage() {
               </div>
               <div>
                 <span className="label">Phone</span>
-                <input className="input" placeholder="(555) 123-4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                <input className="input" placeholder="555-123-4567" value={phone} onChange={(e) => setPhone(formatPhoneInput(e.target.value))} />
               </div>
             </div>
             {errorMsg && <p className="field-error">{errorMsg}</p>}

@@ -15,7 +15,7 @@ const CATEGORY_ORDER: Category[] = ["sheep", "goat", "beef", "chicken", "eggs", 
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t border-line-light dark:border-line-dark">
+    <footer className="print:hidden mt-24 border-t border-line-light dark:border-line-dark">
       <div className="mx-auto max-w-6xl px-5 py-12 text-sm">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">

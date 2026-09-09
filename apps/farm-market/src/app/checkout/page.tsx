@@ -5,10 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/store/cart-context";
 import { checkoutSchema, isLuhnValid } from "@/lib/validation";
-import { money } from "@/lib/format";
+import { formatPhoneInput, money } from "@/lib/format";
 import { getStoredUtm } from "@/lib/utm";
 import { Spinner } from "@/components/Spinner";
 import { stateFromZip } from "@/lib/zip-state";
+import {
+  loadReturningCustomer,
+  saveReturningCustomer,
+  type PaymentMethod,
+} from "@/lib/returning-customer";
 
 interface DeliveryPreview {
   milesEstimate: number;
@@ -35,12 +40,28 @@ export default function CheckoutPage() {
   const [zip, setZip] = useState("");
   const [phone, setPhone] = useState("");
   const [smsOptIn, setSmsOptIn] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<
-    "cod" | "card_demo" | "apple_pay_demo" | "paypal_demo"
-  >("cod");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
+  const [returningCustomer, setReturningCustomer] = useState(false);
+
+  // Autofill for a customer who's checked out on this browser before —
+  // never overwrites anything already typed (e.g. mid-edit after a back
+  // navigation), and never touches card fields, which are never persisted.
+  useEffect(() => {
+    const saved = loadReturningCustomer();
+    if (!saved) return;
+    setFullName((v) => v || saved.fullName);
+    setStreet((v) => v || saved.street);
+    setCity((v) => v || saved.city);
+    setState((v) => v || saved.state);
+    setZip((v) => v || saved.zip);
+    setPhone((v) => v || saved.phone);
+    setSmsOptIn(saved.smsOptIn);
+    setPaymentMethod(saved.paymentMethod);
+    setReturningCustomer(true);
+  }, []);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -175,6 +196,7 @@ export default function CheckoutPage() {
         return;
       }
       clear();
+      saveReturningCustomer({ fullName, street, city, state, zip, phone, smsOptIn, paymentMethod });
       // Vercel's serverless functions don't share memory between
       // invocations, so the confirmation page's own request can land on a
       // different instance that never saw this order. Stash it here so the
@@ -201,7 +223,14 @@ export default function CheckoutPage() {
       <form onSubmit={handleSubmit} className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
         <div className="space-y-8">
           <section className="card space-y-4 p-5">
-            <h2 className="font-semibold">Delivery address</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-semibold">Delivery address</h2>
+              {returningCustomer && (
+                <span className="pill bg-accent/10 text-xs text-accent dark:text-accent-light">
+                  Welcome back — details pre-filled
+                </span>
+              )}
+            </div>
             <Field label="Full name" error={errors["address.fullName"]}>
               <input className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} />
             </Field>
@@ -266,7 +295,13 @@ export default function CheckoutPage() {
           <section className="card space-y-4 p-5">
             <h2 className="font-semibold">Contact &amp; SMS updates</h2>
             <Field label="Phone number" error={errors.phone}>
-              <input className="input" placeholder="(555) 123-4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <input
+                className="input"
+                type="tel"
+                placeholder="555-123-4567"
+                value={phone}
+                onChange={(e) => setPhone(formatPhoneInput(e.target.value))}
+              />
             </Field>
             <label className="flex items-start gap-2.5 text-sm">
               <input

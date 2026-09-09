@@ -96,4 +96,13 @@
     color: #000 !important;
     text-decoration: underline;
   }
+
+  /* Only the page's own main content should ever print — every persistent
+     site-chrome component (header, footer, chat widget, cookie banner,
+     scroll progress, back-to-top) already opts out via print:hidden, so
+     this is a floor: nothing outside #main-content prints even if a future
+     component forgets to. */
+  body > *:not(#main-content) {
+    display: none !important;
+  }
 }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/store/cart-context";
 import { getProduct, CATALOG, CATEGORY_LABELS, CATEGORY_PAIRINGS } from "@/lib/products";
 import type { Category } from "@/lib/types";
-import { money } from "@/lib/format";
+import { formatPhoneInput, money } from "@/lib/format";
 import { FreeDeliveryBar } from "@/components/FreeDeliveryBar";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { Spinner } from "@/components/Spinner";
@@ -235,9 +235,9 @@ export default function CartPage() {
                 <div className="flex gap-2">
                   <input
                     className="input"
-                    placeholder="(555) 123-4567"
+                    placeholder="555-123-4567"
                     value={textPhone}
-                    onChange={(e) => setTextPhone(e.target.value)}
+                    onChange={(e) => setTextPhone(formatPhoneInput(e.target.value))}
                   />
                   <button
                     onClick={sendCartText}
