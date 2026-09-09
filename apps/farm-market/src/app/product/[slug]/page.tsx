@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { getProduct, CATALOG, CATEGORY_LABELS, CATEGORY_PAIRINGS } from "@/lib/products";
 import { getStock } from "@/lib/db";
@@ -70,12 +71,14 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        <div className="product-photo-frame card overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+        <div className="product-photo-frame card relative aspect-[4/3] overflow-hidden">
+          <Image
             src={product.image}
             alt={product.imageAlt}
-            className="product-photo aspect-[4/3] w-full object-cover"
+            fill
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            priority
+            className="product-photo object-cover"
           />
         </div>
 

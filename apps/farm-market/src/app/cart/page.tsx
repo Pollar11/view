@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/store/cart-context";
 import { getProduct, CATALOG, CATEGORY_LABELS, CATEGORY_PAIRINGS } from "@/lib/products";
@@ -90,10 +91,11 @@ export default function CartPage() {
 
             return (
               <div key={`${line.slug}-${line.unitLabel}`} className="card flex gap-4 p-4">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={product.image}
                   alt={product.imageAlt}
+                  width={80}
+                  height={80}
                   className="product-photo h-20 w-20 flex-shrink-0 rounded-lg object-cover"
                 />
                 <div className="flex flex-1 flex-col">

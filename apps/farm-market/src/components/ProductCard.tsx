@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/products";
@@ -11,12 +12,12 @@ export function ProductCard({ product, stock }: { product: Product; stock: numbe
       className="card group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg"
     >
       <div className="product-photo-frame relative aspect-[4/3] overflow-hidden bg-black/5 dark:bg-white/5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={product.image}
           alt={product.imageAlt}
-          loading="lazy"
-          className="product-photo h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          fill
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          className="product-photo object-cover transition duration-500 group-hover:scale-105"
         />
         <span className="absolute left-3 top-3 pill bg-canvas-light/90 text-ink-light dark:bg-canvas-dark/90 dark:text-ink-dark">
           {CATEGORY_LABELS[product.category]}

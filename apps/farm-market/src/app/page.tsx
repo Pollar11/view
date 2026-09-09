@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { CATALOG, CATEGORY_LABELS } from "@/lib/products";
 import { getAllStock } from "@/lib/db";
@@ -69,11 +70,13 @@ export default function HomePage() {
           </div>
 
           <div className="product-photo-frame card relative aspect-[4/3] overflow-hidden lg:aspect-[5/4]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="https://commons.wikimedia.org/wiki/Special:FilePath/Sheep.jpg"
               alt="Pasture-raised sheep grazing at Meadow & Market farm"
-              className="product-photo h-full w-full object-cover"
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              priority
+              className="product-photo object-cover"
             />
           </div>
         </div>
