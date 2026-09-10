@@ -39,102 +39,112 @@ export function Header() {
   }
 
   return (
-    <header className="print:hidden sticky top-0 z-40 border-b-2 border-line-light bg-canvas-light dark:border-line-dark dark:bg-canvas-dark">
-      <div className="announce-bar px-5 py-2">
-        Free delivery on orders $75+ &nbsp;·&nbsp; Cut fresh after you order &nbsp;·&nbsp; Family-run since day one
+    <>
+      {/* Scrolls away with the page — a sibling of <header>, not nested
+          inside it, so the sticky nav below has the whole page's height to
+          stick within instead of being boxed into just its own height
+          (which would leave it nowhere to "float" and it'd just scroll
+          off with everything else — verified this was happening before
+          this fix: getBoundingClientRect().top came back at -516px after
+          a 900px scroll instead of pinning at 0). */}
+      <div className="announce-bar px-5 py-2 print:hidden">
+        We ship within a 320-mile radius of Oakland, CA &nbsp;·&nbsp; track any order in real time
       </div>
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-        <Link href="/" className="flex items-center gap-2.5 font-display text-xl font-bold tracking-tight sm:text-2xl">
-          <span
-            aria-hidden
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/10 text-lg dark:bg-accent-dark/15"
-          >
-            🐑
-          </span>
-          Meadow &amp; Market
-        </Link>
 
-        <nav className="hidden items-center gap-8 text-sm font-semibold text-ink-light/85 dark:text-ink-dark/85 md:flex">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="group relative py-1 transition hover:text-accent dark:hover:text-accent-dark"
+      <header className="print:hidden sticky top-0 z-40 border-b-2 border-line-light bg-canvas-light dark:border-line-dark dark:bg-canvas-dark">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+          <Link href="/" className="flex items-center gap-2.5 font-display text-xl font-bold tracking-tight sm:text-2xl">
+            <span
+              aria-hidden
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/10 text-lg dark:bg-accent-dark/15"
             >
-              {link.label}
-              <span className="absolute inset-x-0 -bottom-0.5 h-[2px] origin-left scale-x-0 rounded-full bg-accent transition-transform duration-200 ease-out group-hover:scale-x-100 dark:bg-accent-dark" />
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={openSearch}
-            aria-label="Search products and orders"
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-line-light transition hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/10"
-          >
-            <SearchIcon />
-          </button>
-          <ThemeToggle />
-          <Link
-            href="/cart"
-            className="relative flex h-9 items-center gap-1.5 rounded-lg border border-line-light px-3.5 text-sm font-semibold transition hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/10"
-          >
-            <CartIcon />
-            Cart
-            {isHydrated && count > 0 && (
-              <span className="ml-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white">
-                {count}
-              </span>
-            )}
+              🐑
+            </span>
+            Meadow &amp; Market
           </Link>
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-line-light transition hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/10 md:hidden"
-          >
-            {menuOpen ? <CloseIcon /> : <MenuIcon />}
-          </button>
-        </div>
-      </div>
 
-      {searchOpen && (
-        <div className="border-t border-line-light px-5 py-3 dark:border-line-dark">
-          <form onSubmit={submitSearch} className="mx-auto flex max-w-6xl gap-2">
-            <input
-              ref={searchInputRef}
-              className="input"
-              placeholder="Search products (e.g. lamb chops, eggs)…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Escape" && setSearchOpen(false)}
-            />
-            <button type="submit" className="btn-secondary shrink-0 px-4">
-              Search
-            </button>
-          </form>
-        </div>
-      )}
-
-      {menuOpen && (
-        <nav className="border-t border-line-light px-5 py-3 text-sm font-medium dark:border-line-dark md:hidden">
-          <ul className="flex flex-col gap-1">
+          <nav className="hidden items-center gap-8 text-sm font-semibold text-ink-light/85 dark:text-ink-dark/85 md:flex">
             {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="block rounded-lg px-2 py-2.5 text-ink-light/90 transition hover:bg-black/5 dark:text-ink-dark/90 dark:hover:bg-white/10"
-                >
-                  {link.label}
-                </Link>
-              </li>
+              <Link
+                key={link.href}
+                href={link.href}
+                className="group relative py-1 transition hover:text-accent dark:hover:text-accent-dark"
+              >
+                {link.label}
+                <span className="absolute inset-x-0 -bottom-0.5 h-[2px] origin-left scale-x-0 rounded-full bg-accent transition-transform duration-200 ease-out group-hover:scale-x-100 dark:bg-accent-dark" />
+              </Link>
             ))}
-          </ul>
-        </nav>
-      )}
-    </header>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={openSearch}
+              aria-label="Search products and orders"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-line-light transition hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/10"
+            >
+              <SearchIcon />
+            </button>
+            <ThemeToggle />
+            <Link
+              href="/cart"
+              className="relative flex h-9 items-center gap-1.5 rounded-lg border border-line-light px-3.5 text-sm font-semibold transition hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/10"
+            >
+              <CartIcon />
+              Cart
+              {isHydrated && count > 0 && (
+                <span className="ml-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white">
+                  {count}
+                </span>
+              )}
+            </Link>
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-line-light transition hover:bg-black/5 dark:border-line-dark dark:hover:bg-white/10 md:hidden"
+            >
+              {menuOpen ? <CloseIcon /> : <MenuIcon />}
+            </button>
+          </div>
+        </div>
+
+        {searchOpen && (
+          <div className="border-t border-line-light px-5 py-3 dark:border-line-dark">
+            <form onSubmit={submitSearch} className="mx-auto flex max-w-6xl gap-2">
+              <input
+                ref={searchInputRef}
+                className="input"
+                placeholder="Search products (e.g. lamb chops, eggs)…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Escape" && setSearchOpen(false)}
+              />
+              <button type="submit" className="btn-secondary shrink-0 px-4">
+                Search
+              </button>
+            </form>
+          </div>
+        )}
+
+        {menuOpen && (
+          <nav className="border-t border-line-light px-5 py-3 text-sm font-medium dark:border-line-dark md:hidden">
+            <ul className="flex flex-col gap-1">
+              {NAV_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="block rounded-lg px-2 py-2.5 text-ink-light/90 transition hover:bg-black/5 dark:text-ink-dark/90 dark:hover:bg-white/10"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </header>
+    </>
   );
 }
 

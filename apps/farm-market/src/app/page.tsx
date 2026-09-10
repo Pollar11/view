@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { CATALOG, CATEGORY_LABELS } from "@/lib/products";
+import { CATALOG, CATEGORY_LABELS, HOME_HERO_IMAGE } from "@/lib/products";
 import { getAllStock } from "@/lib/db";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { SocialProofTicker } from "@/components/SocialProofTicker";
 import { LocationCard } from "@/components/LocationCard";
+import { TruckIcon, LeafIcon, KnifeIcon, ShieldCheckIcon, CheckCircleIcon } from "@/components/icons";
 import type { Category } from "@/lib/types";
 
 const CATEGORY_ICON: Record<Category, string> = {
@@ -77,7 +79,7 @@ export default function HomePage() {
             <div className="relative">
               <div className="product-photo-frame card relative aspect-[4/3] overflow-hidden rounded-xl3 shadow-float dark:shadow-floatDark lg:aspect-[5/4]">
                 <Image
-                  src="https://images.pexels.com/photos/6622957/pexels-photo-6622957.jpeg"
+                  src={HOME_HERO_IMAGE}
                   alt="Pasture-raised sheep at Meadow & Market"
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
@@ -85,12 +87,13 @@ export default function HomePage() {
                   className="product-photo object-cover"
                 />
               </div>
-              {/* Floating trust card, overlapping the photo corner — a
-                  concrete, easy-to-spot signal that this is a redesigned
-                  layout, not a variant of the old plain-framed photo. */}
-              <div className="card absolute -bottom-6 -left-4 flex items-center gap-3 rounded-xl2 px-4 py-3 shadow-float dark:shadow-floatDark sm:-left-6">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-moss/10 text-lg dark:bg-moss-dark/20">
-                  ✅
+              {/* Floating trust card, overlapping the photo's bottom edge.
+                  Inset from the left (never past it) so it can't force
+                  horizontal scroll on narrow phones even inside the hero
+                  section's overflow-hidden. */}
+              <div className="card absolute -bottom-6 left-5 flex max-w-[80%] items-center gap-3 rounded-xl2 px-4 py-3 shadow-float dark:shadow-floatDark sm:left-6">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-moss/10 text-moss dark:bg-moss-dark/20 dark:text-moss-dark">
+                  <CheckCircleIcon />
                 </span>
                 <div className="leading-tight">
                   <p className="text-sm font-bold">Cut after you order</p>
@@ -105,11 +108,11 @@ export default function HomePage() {
       <div className="mx-auto max-w-6xl px-5">
         {/* Trust band — four quick, scannable reasons to trust the site,
             directly under the hero where a new visitor's eyes land next. */}
-        <section className="grid grid-cols-2 gap-px overflow-hidden rounded-xl2 border border-line-light bg-line-light dark:border-line-dark dark:bg-line-dark sm:grid-cols-4 -mt-8 mb-2 relative z-10">
-          <TrustStat icon="🚚" label="Free delivery" sub="On orders $75+" />
-          <TrustStat icon="🌾" label="Pasture-raised" sub="Not feedlot beef" />
-          <TrustStat icon="🔪" label="Cut fresh" sub="After you order" />
-          <TrustStat icon="🔒" label="Secure checkout" sub="Card via Stripe" />
+        <section className="relative z-10 -mt-8 mb-2 grid grid-cols-2 gap-px overflow-hidden rounded-xl2 border border-line-light bg-line-light dark:border-line-dark dark:bg-line-dark sm:grid-cols-4">
+          <TrustStat icon={<TruckIcon />} label="Free delivery" sub="On orders $75+" />
+          <TrustStat icon={<LeafIcon />} label="Pasture-raised" sub="Not feedlot beef" />
+          <TrustStat icon={<KnifeIcon />} label="Cut to order" sub="Never pre-frozen stock" />
+          <TrustStat icon={<ShieldCheckIcon />} label="Secure checkout" sub="Card processed via Stripe" />
         </section>
 
         <div className="flex justify-center py-6">
@@ -169,10 +172,10 @@ export default function HomePage() {
   );
 }
 
-function TrustStat({ icon, label, sub }: { icon: string; label: string; sub: string }) {
+function TrustStat({ icon, label, sub }: { icon: ReactNode; label: string; sub: string }) {
   return (
     <div className="flex items-center gap-3 bg-surface-light px-4 py-4 dark:bg-surface-dark">
-      <span aria-hidden className="text-xl">
+      <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent dark:bg-accent-dark/15 dark:text-accent-light">
         {icon}
       </span>
       <div className="leading-tight">

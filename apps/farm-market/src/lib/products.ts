@@ -69,6 +69,11 @@ const PHOTO = {
   gooseEggs: img("Raw_goose_eggs.jpg"),
 };
 
+/** Reused by the homepage hero so it stays the same photo (and same
+ * already-credited footer entry) as the matching catalog product, instead
+ * of a second hardcoded URL that could drift out of sync. */
+export const HOME_HERO_IMAGE = PHOTO.sheepLive;
+
 const CREDIT = {
   sheepLive: pexelsCredit(6622957, "Cute sheep grazing on verdant pasture"),
   goatLive: pexelsCredit(19550016, "Damascus goat on pasture near seashore"),
