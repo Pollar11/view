@@ -174,6 +174,19 @@ export function getOrder(id: string): Order | undefined {
   return getStore().orders.find((o) => o.id === id);
 }
 
+export async function updateOrderStatus(
+  id: string,
+  status: Order["status"],
+): Promise<Order | undefined> {
+  const store = getStore();
+  const order = store.orders.find((o) => o.id === id);
+  if (!order) return undefined;
+  order.status = status;
+  order.statusUpdatedAt = new Date().toISOString();
+  await persist();
+  return order;
+}
+
 export function getStats() {
   const store = getStore();
   const now = Date.now();

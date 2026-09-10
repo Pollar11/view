@@ -15,7 +15,12 @@ export async function GET(
   req: Request,
   { params }: { params: { id: string } },
 ) {
-  if (!rateLimit(req, "order-lookup", { limit: 30, windowMs: 10 * 60 * 1000 })) {
+  // Limit is higher than a one-off page load needs because the tracking
+  // page polls this endpoint every 30s while open (see
+  // OrderConfirmationClient) so a customer sees admin-set status updates
+  // without reloading — 80/10min covers that with headroom, and still
+  // throttles ID-guessing to a crawl against a 48-bit random order ID.
+  if (!rateLimit(req, "order-lookup", { limit: 80, windowMs: 10 * 60 * 1000 })) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 

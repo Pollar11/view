@@ -30,45 +30,79 @@ function capitalize(s: string): string {
 
 type LoadState = { status: "loading" } | { status: "found"; order: Order } | { status: "not-found" };
 
+const POLL_MS = 30_000;
+
 /**
  * Vercel's serverless functions don't share memory between invocations, so
  * the order this page needs might not be visible to whichever instance
  * handles this request even though checkout genuinely succeeded. To avoid
  * a false "order not found", we render from sessionStorage (set by the
  * checkout page right after a successful order) first — instant and
- * independent of which instance answers — and only fall back to the API
- * (which reads the same disk-backed store checkout wrote to) if that's
- * empty, e.g. a reload or a link opened fresh.
+ * independent of which instance answers — then always also fetch from the
+ * API, which is the source of truth and the only way to see a status an
+ * admin has since set from /admin.
+ *
+ * Once that first API fetch lands, this keeps polling every 30s (paused
+ * while the tab isn't visible) so a customer who leaves the page open sees
+ * a farm-set status update without reloading — that's what makes this
+ * "live" rather than a one-time snapshot. Polling stops once the order is
+ * delivered, since nothing can change after that.
  */
 export function OrderConfirmationClient({ id }: { id: string }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
+  const [lastCheckedAt, setLastCheckedAt] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    let haveOrder = false;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+
+    function applyOrder(order: Order) {
+      if (cancelled) return;
+      haveOrder = true;
+      setState({ status: "found", order });
+      setLastCheckedAt(Date.now());
+      if (order.status === "delivered" && intervalId) {
+        clearInterval(intervalId);
+        intervalId = undefined;
+      }
+    }
+
+    async function fetchOrder(): Promise<Order | null> {
+      try {
+        const res = await fetch(`/api/orders/${id}`);
+        if (!res.ok) return null;
+        const data = await res.json();
+        return (data?.order as Order) ?? null;
+      } catch {
+        return null;
+      }
+    }
 
     try {
       const stored = sessionStorage.getItem(`order:${id}`);
-      if (stored) {
-        setState({ status: "found", order: JSON.parse(stored) as Order });
-        return;
-      }
+      if (stored) applyOrder(JSON.parse(stored) as Order);
     } catch {
       // sessionStorage unavailable — fall through to the API.
     }
 
-    fetch(`/api/orders/${id}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (cancelled) return;
-        if (data?.order) setState({ status: "found", order: data.order as Order });
-        else setState({ status: "not-found" });
-      })
-      .catch(() => {
-        if (!cancelled) setState({ status: "not-found" });
-      });
+    fetchOrder().then((order) => {
+      if (cancelled) return;
+      if (order) {
+        applyOrder(order);
+        intervalId = setInterval(async () => {
+          if (document.visibilityState !== "visible") return;
+          const next = await fetchOrder();
+          if (next) applyOrder(next);
+        }, POLL_MS);
+      } else if (!haveOrder) {
+        setState({ status: "not-found" });
+      }
+    });
 
     return () => {
       cancelled = true;
+      if (intervalId) clearInterval(intervalId);
     };
   }, [id]);
 
@@ -118,8 +152,16 @@ export function OrderConfirmationClient({ id }: { id: string }) {
       </div>
 
       <div className="card mt-8 p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold">{stage.label}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <h2 className="font-semibold">{stage.label}</h2>
+            {stage.isLive && (
+              <span className="badge-solid-moss inline-flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-white" aria-hidden />
+                Live
+              </span>
+            )}
+          </div>
           <span className="text-xs text-ink-light/70 dark:text-ink-dark/70">{stage.estimatedDeliveryLabel}</span>
         </div>
         <ol className="mt-4 flex items-center gap-1">
@@ -145,8 +187,15 @@ export function OrderConfirmationClient({ id }: { id: string }) {
           ))}
         </ol>
         <p className="mt-3 text-xs text-ink-light/70 dark:text-ink-dark/70">
-          This tracker updates based on time since your order was placed — there&apos;s
-          no live GPS feed behind it, so treat the stage as an estimate.
+          {stage.isLive
+            ? "This is the actual stage the farm has marked your order at — this page checks for updates automatically while it's open."
+            : "The farm hasn't marked a stage yet, so this is based on time since your order was placed — an estimate, not a live GPS feed."}
+          {stage.index < 3 && lastCheckedAt && (
+            <>
+              {" "}
+              Last checked {new Date(lastCheckedAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}.
+            </>
+          )}
         </p>
       </div>
 

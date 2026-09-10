@@ -2,8 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { money } from "@/lib/format";
-import type { Customer, Order, SmsLogEntry } from "@/lib/types";
+import type { Customer, Order, OrderStatus, SmsLogEntry } from "@/lib/types";
 import { ConfirmModal } from "@/components/ConfirmModal";
+
+const STATUS_LABELS: Record<OrderStatus, string> = {
+  confirmed: "Confirmed",
+  processing: "Processing",
+  out_for_delivery: "Out for delivery",
+  delivered: "Delivered",
+};
 
 interface OrdersResponse {
   orders: Order[];
@@ -72,6 +79,33 @@ export default function AdminPage() {
       else next.add(id);
       return next;
     });
+  }
+
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+
+  async function updateOrderStatus(orderId: string, status: OrderStatus) {
+    setUpdatingOrderId(orderId);
+    // Optimistic update so the dropdown reflects the pick immediately —
+    // this is the action that puts an order "live" on the customer's
+    // tracker, so it should feel instant, not wait on a round trip.
+    setData((prev) =>
+      prev
+        ? { ...prev, orders: prev.orders.map((o) => (o.id === orderId ? { ...o, status } : o)) }
+        : prev,
+    );
+    try {
+      await fetch(`/api/admin/orders/${orderId}/status`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": data?.csrfToken ?? "",
+        },
+        body: JSON.stringify({ status }),
+      });
+    } finally {
+      setUpdatingOrderId(null);
+      refresh();
+    }
   }
 
   async function sendWinBack() {
@@ -254,9 +288,13 @@ export default function AdminPage() {
 
       <section className="mt-12">
         <h2 className="text-xl font-bold tracking-tight">Recent orders</h2>
+        <p className="mt-1 text-sm text-ink-light/85 dark:text-ink-dark/85">
+          Setting a stage here is what the customer's tracker page shows as their
+          order's live status, instead of its time-based estimate.
+        </p>
         <div className="mt-4 space-y-2">
           {data?.orders.slice(0, 15).map((o) => (
-            <div key={o.id} className="card flex items-center justify-between p-3 text-sm">
+            <div key={o.id} className="card flex flex-wrap items-center justify-between gap-3 p-3 text-sm">
               <span>
                 #{o.id.slice(-6).toUpperCase()} — {o.address.fullName} ({o.address.city}, {o.address.state})
                 {o.utm?.source && (
@@ -265,7 +303,21 @@ export default function AdminPage() {
                   </span>
                 )}
               </span>
-              <span className="font-semibold">{money(o.total)}</span>
+              <div className="flex items-center gap-3">
+                <span className="font-semibold">{money(o.total)}</span>
+                <select
+                  className="input w-auto py-1.5 text-xs"
+                  value={o.status}
+                  disabled={updatingOrderId === o.id}
+                  onChange={(e) => updateOrderStatus(o.id, e.target.value as OrderStatus)}
+                >
+                  {(Object.keys(STATUS_LABELS) as OrderStatus[]).map((s) => (
+                    <option key={s} value={s}>
+                      {STATUS_LABELS[s]}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           ))}
           {(!data || data.orders.length === 0) && (

@@ -52,6 +52,7 @@ export async function fulfillOrder(input: FulfillOrderInput): Promise<Order> {
     deliveryEtaDays: input.deliveryEtaDays,
     deliveryMiles: input.deliveryMiles,
     status: "confirmed",
+    statusUpdatedAt: null,
     createdAt: new Date().toISOString(),
     utm: input.utm,
   };

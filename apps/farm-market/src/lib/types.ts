@@ -100,10 +100,20 @@ export interface Order {
   cardBrand: string | null;
   deliveryEtaDays: number;
   deliveryMiles: number;
-  status: "confirmed";
+  status: OrderStatus;
+  /** Set only when an admin has actually moved the order along in
+   * /admin — null means nobody has touched it yet, so the tracker still
+   * falls back to the time-elapsed estimate instead of claiming a live
+   * status nobody actually set. */
+  statusUpdatedAt: string | null;
   createdAt: string;
   utm: UtmAttribution | null;
 }
+
+/** Real fulfillment state an admin can set from /admin — distinct from the
+ * time-based stage estimate in lib/order-status.ts, which is a fallback for
+ * orders no one has manually updated yet. */
+export type OrderStatus = "confirmed" | "processing" | "out_for_delivery" | "delivered";
 
 /**
  * A checkout that's been priced and validated but not yet paid — created
