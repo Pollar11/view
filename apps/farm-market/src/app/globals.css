@@ -5,6 +5,7 @@
 @layer base {
   html {
     color-scheme: light dark;
+    scroll-behavior: smooth;
   }
 
   body {
@@ -20,19 +21,23 @@
   ::selection {
     @apply bg-accent/30;
   }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent/50 ring-offset-2 ring-offset-canvas-light dark:ring-accent-dark/50 dark:ring-offset-canvas-dark;
+  }
 }
 
 @layer components {
   .card {
-    @apply rounded-xl2 border border-line-light bg-surface-light shadow-soft dark:border-line-dark dark:bg-surface-dark dark:shadow-softDark;
+    @apply rounded-xl2 border border-line-light bg-surface-light shadow-soft transition-shadow duration-200 dark:border-line-dark dark:bg-surface-dark dark:shadow-softDark;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent-light disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(30,58,95,0.15),0_6px_16px_rgba(30,58,95,0.25)] transition duration-200 ease-out hover:-translate-y-px hover:bg-accent-light hover:shadow-[0_2px_4px_rgba(30,58,95,0.2),0_10px_24px_rgba(30,58,95,0.3)] active:translate-y-0 active:shadow-[0_1px_2px_rgba(30,58,95,0.15)] disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-40 disabled:shadow-none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-lg border-2 border-ink-light/15 bg-transparent px-6 py-3 text-sm font-semibold text-ink-light transition hover:border-ink-light/30 hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-40 dark:border-ink-dark/20 dark:text-ink-dark dark:hover:border-ink-dark/40 dark:hover:bg-white/5;
+    @apply inline-flex items-center justify-center rounded-lg border-2 border-ink-light/15 bg-transparent px-6 py-3 text-sm font-semibold text-ink-light transition duration-200 ease-out hover:-translate-y-px hover:border-ink-light/30 hover:bg-black/5 active:translate-y-0 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-40 dark:border-ink-dark/20 dark:text-ink-dark dark:hover:border-ink-dark/40 dark:hover:bg-white/5;
   }
 
   .input {

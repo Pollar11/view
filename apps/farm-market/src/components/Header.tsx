@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { href: "/membership", label: "Membership" },
   { href: "/locations", label: "Locations" },
   { href: "/deals", label: "Deals" },
+  { href: "/track", label: "Track Order" },
 ];
 
 export function Header() {
@@ -100,9 +101,6 @@ export function Header() {
               Search
             </button>
           </form>
-          <p className="mx-auto mt-1.5 max-w-6xl text-xs text-ink-light/70 dark:text-ink-dark/70">
-            Looking for an existing order instead? <Link href="/track" onClick={() => setSearchOpen(false)} className="underline">Track your order</Link>.
-          </p>
         </div>
       )}
 

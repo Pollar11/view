@@ -7,6 +7,8 @@ import { getStock } from "@/lib/db";
 import { AddToCartPanel } from "@/components/AddToCartPanel";
 import { StockBadge } from "@/components/StockBadge";
 import { ProductCard } from "@/components/ProductCard";
+import { RecentlyViewed } from "@/components/RecentlyViewed";
+import { RecentlyViewedTracker } from "@/components/RecentlyViewedTracker";
 import { estimatedPrice } from "@/lib/display";
 import { SITE_URL } from "@/lib/site";
 
@@ -121,6 +123,9 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
           automatically, 4 or more saves 10%, applied in your cart.
         </p>
       </section>
+
+      <RecentlyViewed excludeSlug={product.slug} />
+      <RecentlyViewedTracker slug={product.slug} />
     </div>
   );
 }

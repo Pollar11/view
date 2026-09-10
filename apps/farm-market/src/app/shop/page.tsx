@@ -44,19 +44,7 @@ export default function ShopPage({
         Pasture-raised meat and eggs, priced against current market rates.
       </p>
 
-      <form action="/shop" method="GET" className="mt-6 flex max-w-md gap-2">
-        {active && <input type="hidden" name="category" value={active} />}
-        <input
-          type="search"
-          name="q"
-          defaultValue={searchParams.q ?? ""}
-          placeholder="Search products…"
-          className="input"
-        />
-        <button type="submit" className="btn-secondary shrink-0 px-4">Search</button>
-      </form>
-
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap gap-2">
         <FilterChip href="/shop" label="All" active={!active} />
         {CATEGORIES.map((c) => (
           <FilterChip key={c} href={`/shop?category=${c}`} label={CATEGORY_LABELS[c]} active={active === c} />

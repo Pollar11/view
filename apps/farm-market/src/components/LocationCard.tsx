@@ -8,23 +8,26 @@ import {
 } from "@/lib/site";
 import { CopyButton } from "./CopyButton";
 
-export function LocationCard() {
+export function LocationCard({
+  heading = "Our Address & Pickup",
+  description = "Our order-processing hub — deliveries ship from here within a ~320 mile radius (Anaheim, CA included).",
+}: {
+  heading?: string;
+  description?: string;
+}) {
   return (
     <div className="card grid overflow-hidden md:grid-cols-2">
       <div className="aspect-[4/3] w-full md:aspect-auto">
         <iframe
-          title="Map to Meadow & Market farm"
+          title="Map to Meadow & Market"
           src={FARM_MAP_EMBED_URL}
           className="h-full w-full grayscale-[15%]"
           loading="lazy"
         />
       </div>
       <div className="p-6">
-        <h3 className="text-lg font-bold">Oakland Farm &amp; Pickup</h3>
-        <p className="mt-1 text-sm text-ink-light/85 dark:text-ink-dark/85">
-          Our home farm and order-processing hub — deliveries ship from here
-          within a ~320 mile radius (Anaheim, CA included).
-        </p>
+        <h3 className="text-lg font-bold">{heading}</h3>
+        <p className="mt-1 text-sm text-ink-light/85 dark:text-ink-dark/85">{description}</p>
 
         <div className="mt-4 space-y-1 text-sm">
           <div className="flex items-center gap-2">

@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 import { ProductCard } from "@/components/ProductCard";
+import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { SocialProofTicker } from "@/components/SocialProofTicker";
 import { LocationCard } from "@/components/LocationCard";
 import type { Category } from "@/lib/types";
@@ -36,21 +37,21 @@ export default function HomePage() {
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div className="animate-fadeUp">
             <p className="mb-3 pill w-fit bg-accent/10 text-accent dark:text-accent-light">
-              Oakland, CA · Family-run
+              Family-run · Pasture-raised
             </p>
             <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl">
-              Real farm, real animals,
+              Real animals, raised right,
               <br />
               delivered to your door.
             </h1>
             <p className="mt-5 max-w-md text-base text-ink-light/70 dark:text-ink-dark/70">
               Sheep, goat, beef, chicken, duck, rabbit, and eggs — whole or
-              butchered, priced against today&apos;s market, delivered fresh
-              from 845 Kennedy St in Oakland.
+              butchered, priced against today&apos;s market, cut fresh and
+              delivered straight to you.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-5">
               <Link href="/shop" className="btn-primary">
-                Shop the farm
+                Start shopping
               </Link>
               <Link href="/subscribe" className="text-sm font-semibold underline underline-offset-4 hover:text-accent">
                 Or set up a monthly box →
@@ -72,7 +73,7 @@ export default function HomePage() {
           <div className="product-photo-frame card relative aspect-[4/3] overflow-hidden lg:aspect-[5/4]">
             <Image
               src="https://commons.wikimedia.org/wiki/Special:FilePath/Sheep.jpg"
-              alt="Pasture-raised sheep grazing at Meadow & Market farm"
+              alt="Pasture-raised sheep at Meadow & Market"
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
               priority
@@ -90,7 +91,7 @@ export default function HomePage() {
         <section className="py-10">
           <div className="mb-8 flex items-end justify-between">
             <h2 className="text-2xl font-bold tracking-tight">
-              This week on the farm
+              Featured this week
             </h2>
             <Link href="/shop" className="text-sm font-semibold underline underline-offset-4">
               View all
@@ -103,10 +104,12 @@ export default function HomePage() {
           </div>
         </section>
 
+        <RecentlyViewed />
+
         <section className="border-t border-line-light py-16 dark:border-line-dark">
-          <h2 className="text-2xl font-bold tracking-tight">Visit or track your delivery from here</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Where we deliver</h2>
           <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
-            Every order ships from our Oakland farm — including delivery toward Anaheim, CA.
+            We deliver within about a 320-mile radius — including all the way toward Anaheim, CA.
           </p>
           <div className="mt-6">
             <LocationCard />
@@ -114,7 +117,7 @@ export default function HomePage() {
         </section>
 
         <section id="why" className="scroll-mt-24 border-t border-line-light py-16 dark:border-line-dark">
-          <h2 className="text-2xl font-bold tracking-tight">Why buy direct from the farm</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Why buy direct</h2>
           <div className="mt-8 grid gap-8 sm:grid-cols-3">
             <Why
               title="Priced against today's market"

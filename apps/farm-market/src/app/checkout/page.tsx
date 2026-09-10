@@ -9,12 +9,8 @@ import { formatPhoneInput, money } from "@/lib/format";
 import { getStoredUtm } from "@/lib/utm";
 import { Spinner } from "@/components/Spinner";
 import { stateFromZip } from "@/lib/zip-state";
-import {
-  loadReturningCustomer,
-  saveReturningCustomer,
-  type PaymentMethod,
-  type ReturningCustomer,
-} from "@/lib/returning-customer";
+
+type PaymentMethod = "cod" | "stripe";
 
 interface DeliveryPreview {
   milesEstimate: number;
@@ -52,31 +48,6 @@ function CheckoutPageContent() {
   const [phone, setPhone] = useState("");
   const [smsOptIn, setSmsOptIn] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
-  // A saved profile from a previous checkout on this browser — a shared
-  // or public computer can carry a *different* person's name, address, and
-  // phone here, so it must never fill the form silently. It's only offered,
-  // by name, and only applied if this visitor explicitly confirms it's
-  // them; declining (or ignoring it) leaves every field blank as normal.
-  const [savedProfile, setSavedProfile] = useState<ReturningCustomer | null>(null);
-  const [profileApplied, setProfileApplied] = useState(false);
-  const [profileDismissed, setProfileDismissed] = useState(false);
-
-  useEffect(() => {
-    setSavedProfile(loadReturningCustomer());
-  }, []);
-
-  function applySavedProfile() {
-    if (!savedProfile) return;
-    setFullName(savedProfile.fullName);
-    setStreet(savedProfile.street);
-    setCity(savedProfile.city);
-    setState(savedProfile.state);
-    setZip(savedProfile.zip);
-    setPhone(savedProfile.phone);
-    setSmsOptIn(savedProfile.smsOptIn);
-    setPaymentMethod(savedProfile.paymentMethod);
-    setProfileApplied(true);
-  }
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -191,8 +162,6 @@ function CheckoutPageContent() {
     setErrors({});
     setSubmitting(true);
 
-    saveReturningCustomer({ fullName, street, city, state, zip, phone, smsOptIn, paymentMethod });
-
     if (paymentMethod === "stripe") {
       try {
         const res = await fetch("/api/checkout/stripe", {
@@ -259,33 +228,10 @@ function CheckoutPageContent() {
         </p>
       )}
 
-      {savedProfile && !profileApplied && !profileDismissed && (
-        <div className="card mt-6 flex flex-wrap items-center justify-between gap-3 bg-accent/5 p-4">
-          <p className="text-sm">
-            Welcome back, <strong>{savedProfile.fullName}</strong> — use your saved delivery details?
-          </p>
-          <div className="flex shrink-0 gap-2">
-            <button type="button" onClick={() => setProfileDismissed(true)} className="btn-secondary px-3 py-1.5 text-xs">
-              Not me
-            </button>
-            <button type="button" onClick={applySavedProfile} className="btn-primary px-3 py-1.5 text-xs">
-              Use these details
-            </button>
-          </div>
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
         <div className="space-y-8">
           <section className="card space-y-4 p-5">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="font-semibold">Delivery address</h2>
-              {profileApplied && (
-                <span className="pill bg-accent/10 text-xs text-accent dark:text-accent-light">
-                  Using saved details
-                </span>
-              )}
-            </div>
+            <h2 className="font-semibold">Delivery address</h2>
             <Field label="Full name" error={errors["address.fullName"]}>
               <input className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} />
             </Field>

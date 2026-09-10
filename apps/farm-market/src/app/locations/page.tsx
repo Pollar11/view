@@ -15,7 +15,10 @@ export default function LocationsPage() {
         grow, additional pickup points will be listed here.
       </p>
       <div className="mt-8">
-        <LocationCard />
+        <LocationCard
+          heading="Oakland Farm & Pickup"
+          description="Our home farm and order-processing hub — deliveries ship from here within a ~320 mile radius (Anaheim, CA included)."
+        />
       </div>
 
       <div className="mt-10 card p-6">
