@@ -4,6 +4,7 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "commons.wikimedia.org" },
       { protocol: "https", hostname: "upload.wikimedia.org" },
+      { protocol: "https", hostname: "images.pexels.com" },
     ],
   },
   async headers() {
@@ -21,7 +22,7 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "img-src 'self' data: https://commons.wikimedia.org https://upload.wikimedia.org",
+              "img-src 'self' data: https://commons.wikimedia.org https://upload.wikimedia.org https://images.pexels.com",
               "style-src 'self' 'unsafe-inline'",
               // 'unsafe-eval' is required only by Next.js's dev-mode webpack bundle
               // (HMR/React Refresh use eval-based sourcemaps) — never needed in a

@@ -25,14 +25,34 @@ function credit(file: string, license = "Wikimedia Commons") {
   };
 }
 
+/**
+ * The six "live animal" hero photos (one per category) were switched to
+ * Pexels — free stock photography, no attribution legally required, and
+ * each one is a specific photo whose Pexels title unambiguously names the
+ * animal (not a generic/ambiguous search-result thumbnail). Pexels' own
+ * CDN URL pattern (images.pexels.com/photos/<id>/pexels-photo-<id>.jpeg)
+ * is stable and documented; next/image resizes from this full-size
+ * original the same way it already does for the Wikimedia photos below.
+ */
+const pexelsImg = (id: number) =>
+  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg`;
+
+function pexelsCredit(id: number, title: string) {
+  return {
+    title,
+    sourceUrl: `https://www.pexels.com/photo/${id}/`,
+    license: "Pexels License (free to use, no attribution required)",
+  };
+}
+
 // ---- shared photo pool -----------------------------------------------
 const PHOTO = {
-  sheepLive: img("Sheep.jpg"),
-  goatLive: img("Goat.jpg"),
-  beefLive: img("Holstein_Cow_Grazing_01.jpg"),
-  chickenLive: img("Free_range_chicken_flock.jpg"),
-  duckLive: img("Duck.jpg"),
-  rabbitLive: img("NewZealandWhiteRabbit.jpg"),
+  sheepLive: pexelsImg(6622957),
+  goatLive: pexelsImg(19550016),
+  beefLive: pexelsImg(34238253),
+  chickenLive: pexelsImg(6441),
+  duckLive: pexelsImg(2006638),
+  rabbitLive: pexelsImg(326012),
 
   lambChops: img("Lamb_chops,_2006.jpg"),
   goatChops: img("Goat_chops.jpg"),
@@ -50,12 +70,12 @@ const PHOTO = {
 };
 
 const CREDIT = {
-  sheepLive: credit("Sheep.jpg"),
-  goatLive: credit("Goat.jpg"),
-  beefLive: credit("Holstein_Cow_Grazing_01.jpg"),
-  chickenLive: credit("Free_range_chicken_flock.jpg", "CC BY 2.0"),
-  duckLive: credit("Duck.jpg"),
-  rabbitLive: credit("NewZealandWhiteRabbit.jpg", "CC BY-SA 3.0"),
+  sheepLive: pexelsCredit(6622957, "Cute sheep grazing on verdant pasture"),
+  goatLive: pexelsCredit(19550016, "Damascus goat on pasture near seashore"),
+  beefLive: pexelsCredit(34238253, "Peaceful cattle grazing in a sunny pasture"),
+  chickenLive: pexelsCredit(6441, "Chickens on traditional free range"),
+  duckLive: pexelsCredit(2006638, "Close-up of a mallard duck by the water"),
+  rabbitLive: pexelsCredit(326012, "Close-up of rabbit on field"),
 
   lambChops: credit("Lamb_chops,_2006.jpg"),
   goatChops: credit("Goat_chops.jpg"),
@@ -787,7 +807,7 @@ export const CATALOG: Product[] = [
     avgWeightLb: 5,
     baseStock: 11,
     image: PHOTO.duckLive,
-    imageAlt: "A duck standing outdoors",
+    imageAlt: "A duck by the water outdoors",
     imageCredit: CREDIT.duckLive,
     description: "Whole pasture-raised duck, about 5 lb dressed. Rich, dark meat — a favorite for roasting.",
     bullets: ["Pasture-raised, pond access", "Whole bird, ~5 lb average dressed weight", "Great for roasting or confit"],
@@ -804,7 +824,7 @@ export const CATALOG: Product[] = [
     avgWeightLb: 6.5,
     baseStock: 6,
     image: PHOTO.duckLive,
-    imageAlt: "A duck standing outdoors — same pond-access flock, an older, larger bird",
+    imageAlt: "A duck by the water outdoors — same pond-access flock, an older, larger bird",
     imageCredit: CREDIT.duckLive,
     description: "An older, larger bird from the same flock — more meat per duck for a bigger table.",
     bullets: ["~6.5 lb average dressed weight", "Same pasture-raised, pond-access flock", "Feeds a larger table"],
@@ -1117,7 +1137,7 @@ export const CATALOG: Product[] = [
     avgWeightLb: 3.5,
     baseStock: 8,
     image: PHOTO.rabbitLive,
-    imageAlt: "A New Zealand White rabbit, a common meat-rabbit breed",
+    imageAlt: "A rabbit outdoors on grass",
     imageCredit: CREDIT.rabbitLive,
     description: "Whole farm-raised rabbit, about 3.5 lb dressed. Lean, mild white meat.",
     bullets: ["Farm-raised meat rabbit breeds (New Zealand White)", "Lean, high-protein white meat", "Whole animal, ~3.5 lb average dressed weight"],
