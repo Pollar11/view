@@ -32,67 +32,96 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Split hero — warm canvas + a framed photo card, not a full-bleed dark banner */}
-      <section className="mx-auto max-w-6xl px-5 pb-6 pt-14">
-        <div className="grid items-center gap-10 lg:grid-cols-2">
-          <div className="animate-fadeUp">
-            <p className="mb-3 pill w-fit bg-accent/10 text-accent dark:text-accent-light">
-              Family-run · Pasture-raised
-            </p>
-            <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl">
-              Real animals, raised right,
-              <br />
-              delivered to your door.
-            </h1>
-            <p className="mt-5 max-w-md text-base text-ink-light/70 dark:text-ink-dark/70">
-              Sheep, goat, beef, chicken, duck, rabbit, and eggs — whole or
-              butchered, priced against today&apos;s market, cut fresh and
-              delivered straight to you.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-5">
-              <Link href="/shop" className="btn-primary">
-                Start shopping
-              </Link>
-              <Link href="/subscribe" className="text-sm font-semibold underline underline-offset-4 hover:text-accent">
-                Or set up a monthly box →
-              </Link>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-2">
-              {CATEGORY_ORDER.map((c) => (
-                <Link
-                  key={c}
-                  href={`/shop?category=${c}`}
-                  className="pill border border-line-light bg-surface-light hover:bg-black/5 dark:border-line-dark dark:bg-surface-dark dark:hover:bg-white/10"
-                >
-                  <span aria-hidden>{CATEGORY_ICON[c]}</span> {CATEGORY_LABELS[c]}
+      {/* Split hero on a soft gradient band so it reads as a distinct zone,
+          not a continuation of the plain canvas background. */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-accent/[0.07] via-canvas-light to-canvas-light dark:from-accent-dark/[0.09] dark:via-canvas-dark dark:to-canvas-dark">
+        <div className="mx-auto max-w-6xl px-5 pb-16 pt-16 sm:pb-20 sm:pt-20">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div className="animate-fadeUp">
+              <p className="mb-4 pill w-fit bg-accent/10 text-accent dark:bg-accent-dark/15 dark:text-accent-light">
+                🐑 Family-run · Pasture-raised
+              </p>
+              <h1 className="text-5xl font-bold leading-[1.03] tracking-tight sm:text-6xl lg:text-[3.4rem]">
+                Real animals,
+                <br />
+                raised right,
+                <br />
+                <span className="text-accent dark:text-accent-light">delivered to your door.</span>
+              </h1>
+              <p className="mt-6 max-w-md text-base text-ink-light/70 dark:text-ink-dark/70">
+                Sheep, goat, beef, chicken, duck, rabbit, and eggs — whole or
+                butchered, priced against today&apos;s market, cut fresh and
+                delivered straight to you.
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-6">
+                <Link href="/shop" className="btn-primary">
+                  Start shopping
                 </Link>
-              ))}
+                <Link href="/subscribe" className="text-sm font-semibold underline underline-offset-4 hover:text-accent">
+                  Or set up a monthly box →
+                </Link>
+              </div>
+              <div className="mt-9 flex flex-wrap gap-2">
+                {CATEGORY_ORDER.map((c) => (
+                  <Link
+                    key={c}
+                    href={`/shop?category=${c}`}
+                    className="pill border border-line-light bg-surface-light hover:bg-black/5 dark:border-line-dark dark:bg-surface-dark dark:hover:bg-white/10"
+                  >
+                    <span aria-hidden>{CATEGORY_ICON[c]}</span> {CATEGORY_LABELS[c]}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="product-photo-frame card relative aspect-[4/3] overflow-hidden lg:aspect-[5/4]">
-            <Image
-              src="https://commons.wikimedia.org/wiki/Special:FilePath/Sheep.jpg"
-              alt="Pasture-raised sheep at Meadow & Market"
-              fill
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              priority
-              className="product-photo object-cover"
-            />
+            <div className="relative">
+              <div className="product-photo-frame card relative aspect-[4/3] overflow-hidden rounded-xl3 shadow-float dark:shadow-floatDark lg:aspect-[5/4]">
+                <Image
+                  src="https://images.pexels.com/photos/6622957/pexels-photo-6622957.jpeg"
+                  alt="Pasture-raised sheep at Meadow & Market"
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  priority
+                  className="product-photo object-cover"
+                />
+              </div>
+              {/* Floating trust card, overlapping the photo corner — a
+                  concrete, easy-to-spot signal that this is a redesigned
+                  layout, not a variant of the old plain-framed photo. */}
+              <div className="card absolute -bottom-6 -left-4 flex items-center gap-3 rounded-xl2 px-4 py-3 shadow-float dark:shadow-floatDark sm:-left-6">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-moss/10 text-lg dark:bg-moss-dark/20">
+                  ✅
+                </span>
+                <div className="leading-tight">
+                  <p className="text-sm font-bold">Cut after you order</p>
+                  <p className="text-xs text-ink-light/60 dark:text-ink-dark/60">Never frozen in a warehouse</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-6xl px-5">
+        {/* Trust band — four quick, scannable reasons to trust the site,
+            directly under the hero where a new visitor's eyes land next. */}
+        <section className="grid grid-cols-2 gap-px overflow-hidden rounded-xl2 border border-line-light bg-line-light dark:border-line-dark dark:bg-line-dark sm:grid-cols-4 -mt-8 mb-2 relative z-10">
+          <TrustStat icon="🚚" label="Free delivery" sub="On orders $75+" />
+          <TrustStat icon="🌾" label="Pasture-raised" sub="Not feedlot beef" />
+          <TrustStat icon="🔪" label="Cut fresh" sub="After you order" />
+          <TrustStat icon="🔒" label="Secure checkout" sub="Card via Stripe" />
+        </section>
+
         <div className="flex justify-center py-6">
           <SocialProofTicker />
         </div>
 
         <section className="py-10">
           <div className="mb-8 flex items-end justify-between">
-            <h2 className="text-2xl font-bold tracking-tight">
-              Featured this week
-            </h2>
+            <div>
+              <p className="eyebrow">This week</p>
+              <h2 className="text-3xl font-bold tracking-tight">Featured cuts</h2>
+            </div>
             <Link href="/shop" className="text-sm font-semibold underline underline-offset-4">
               View all
             </Link>
@@ -107,7 +136,8 @@ export default function HomePage() {
         <RecentlyViewed />
 
         <section className="border-t border-line-light py-16 dark:border-line-dark">
-          <h2 className="text-2xl font-bold tracking-tight">Where we deliver</h2>
+          <p className="eyebrow">Delivery area</p>
+          <h2 className="text-3xl font-bold tracking-tight">Where we deliver</h2>
           <p className="mt-2 text-ink-light/85 dark:text-ink-dark/85">
             We deliver within about a 320-mile radius — including all the way toward Anaheim, CA.
           </p>
@@ -117,8 +147,9 @@ export default function HomePage() {
         </section>
 
         <section id="why" className="scroll-mt-24 border-t border-line-light py-16 dark:border-line-dark">
-          <h2 className="text-2xl font-bold tracking-tight">Why buy direct</h2>
-          <div className="mt-8 grid gap-8 sm:grid-cols-3">
+          <p className="eyebrow">Why direct</p>
+          <h2 className="text-3xl font-bold tracking-tight">Why buy direct</h2>
+          <div className="mt-8 grid gap-6 sm:grid-cols-3">
             <Why
               title="Priced against today's market"
               body="Every price on this site is set against current regional livestock and specialty-meat rates — not marked up, not a loss leader."
@@ -133,6 +164,20 @@ export default function HomePage() {
             />
           </div>
         </section>
+      </div>
+    </div>
+  );
+}
+
+function TrustStat({ icon, label, sub }: { icon: string; label: string; sub: string }) {
+  return (
+    <div className="flex items-center gap-3 bg-surface-light px-4 py-4 dark:bg-surface-dark">
+      <span aria-hidden className="text-xl">
+        {icon}
+      </span>
+      <div className="leading-tight">
+        <p className="text-xs font-bold sm:text-sm">{label}</p>
+        <p className="text-[11px] text-ink-light/60 dark:text-ink-dark/60">{sub}</p>
       </div>
     </div>
   );

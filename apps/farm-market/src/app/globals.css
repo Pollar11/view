@@ -56,6 +56,30 @@
     @apply inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-semibold;
   }
 
+  .badge-solid {
+    @apply inline-flex items-center gap-1 rounded-md bg-accent px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm;
+  }
+
+  .badge-solid-moss {
+    @apply inline-flex items-center gap-1 rounded-md bg-moss px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm;
+  }
+
+  /* Small colored kicker line + label used above section headings, so a
+     heading reads as a distinct "section start" rather than blending into
+     the paragraph above it. */
+  .eyebrow {
+    @apply mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-accent dark:text-accent-dark;
+  }
+
+  .eyebrow::before {
+    content: "";
+    @apply h-[2px] w-6 rounded-full bg-accent dark:bg-accent-dark;
+  }
+
+  .announce-bar {
+    @apply bg-accent text-center text-[13px] font-semibold text-white;
+  }
+
   /*
    * Applied to every product photo. Our source photos come from different
    * photographers/settings (grass, hillside, indoor), so a single subtle

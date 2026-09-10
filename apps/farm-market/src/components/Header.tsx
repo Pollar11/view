@@ -40,16 +40,29 @@ export function Header() {
 
   return (
     <header className="print:hidden sticky top-0 z-40 border-b-2 border-line-light bg-canvas-light dark:border-line-dark dark:bg-canvas-dark">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
-        <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
-          <span aria-hidden>🐑</span>
+      <div className="announce-bar px-5 py-2">
+        Free delivery on orders $75+ &nbsp;·&nbsp; Cut fresh after you order &nbsp;·&nbsp; Family-run since day one
+      </div>
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+        <Link href="/" className="flex items-center gap-2.5 font-display text-xl font-bold tracking-tight sm:text-2xl">
+          <span
+            aria-hidden
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/10 text-lg dark:bg-accent-dark/15"
+          >
+            🐑
+          </span>
           Meadow &amp; Market
         </Link>
 
-        <nav className="hidden items-center gap-7 text-sm font-medium text-ink-light/85 dark:text-ink-dark/85 md:flex">
+        <nav className="hidden items-center gap-8 text-sm font-semibold text-ink-light/85 dark:text-ink-dark/85 md:flex">
           {NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className="transition hover:text-accent dark:hover:text-accent-dark">
+            <Link
+              key={link.href}
+              href={link.href}
+              className="group relative py-1 transition hover:text-accent dark:hover:text-accent-dark"
+            >
               {link.label}
+              <span className="absolute inset-x-0 -bottom-0.5 h-[2px] origin-left scale-x-0 rounded-full bg-accent transition-transform duration-200 ease-out group-hover:scale-x-100 dark:bg-accent-dark" />
             </Link>
           ))}
         </nav>
